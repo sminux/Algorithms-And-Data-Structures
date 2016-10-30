@@ -1,77 +1,104 @@
 #include "f.h"
 
-
-f::f(int **arr, int cols, int rows)
+f::f(size_t **arr, size_t c_r)
 {
 	data = arr;
-	c = cols;
-	r = rows;
+	c = c_r;
+	r = c_r;
 }
 
 int f::square()
 {
 	int S = 0;
-	for (int i(0); i < r; i++)
+	for (size_t i(0); i < r; i++)
 	{
-		for (int j(0); j < c; j++)
+		for (size_t j(0); j < c; j++)
 			if (data[i][j] == 1) S += 1;
 	}
 	return S;
 }
 
-void f::checkCorrect()
+bool f::checkCorrect()
 {
-	int wall = 0;
-	for (int i(0); i < r-1; i++)
+	bool flag = true;
+	for (int i(0); i < c-1; i++)
 	{
-		for (int j(0); j < c - 1; j++)
+		for (int j(0); j < r - 1; j++)
 		{
-			if ((data[i][j] == 1) && (data[i][j] == data[i + 1][j + 1]))
-				if ((data[i + 1][j] == 0) && (data[i][j + 1] == 0))
-					cout << "Bad figure :( \t["  << i << "," << j << "]"<< endl;
-			if ((data[i][j] == 0) && (data[i][j] == data[i + 1][j + 1]))
-				if ((data[i + 1][j] == 1) && (data[i][j + 1] == 1))
-					cout << "Bad figure :( \t[" << i << "," << j << "]" << endl;
+			if (data[i][j] == 1);
 		}
 	}
-	for (int i(1); i < r - 1; i++)
+	return flag;
+}
+
+void f::delZeros()	//from square matrix to normal
+{
+	size_t t = 0;
+	for (size_t i(0); i < c; i++)
 	{
-		wall = 0;
-		//if ((data[i - 1][0] == 1) && (data[i][0] == 1) && (data[i + 1][0] == 1)) wall += 1;
-		//if ((data[i - 1][c] == 1) && (data[i][c] == 1) && (data[i + 1][c] == 1)) wall += 1;
-		for (int j(1); j < c - 1; j++)
-		{			
-			if ((data[i - 1][j] == 1) && (data[i][j] == 1) && (data[i + 1][j] == 1)) wall += 1;
-			if ((data[i][j - 1] == 1) && (data[i][j] == 1) && (data[i][j - 1] == 1)) wall += 1;
-			if ((data[i][j] == 1) && (wall > 2))		
-				cout << ":( \t[" << i << "," << j << "]" << endl;
+		for (size_t j(0); j < r; j++)
+			if (data[i][j] != 0) t += 1;
+		if (t == 0)
+		{
+			for (size_t y = i; y < c - 1; y++)
+				for (size_t j(0); j < r; j++)
+					data[y][j] = data[y + 1][j];
+			c = c - 1;
+			i = 0;
 		}
+		t = 0;
 	}
-	for (int j(1); j < c - 1; j++)
+
+	for (size_t i(0); i < r; i++)
 	{
-		wall = 0;
-		//if ((data[0][j - 1] == 1) && (data[0][j] == 1) && (data[0][j + 1] == 1)) wall += 1;
-		//if ((data[c][j - 1] == 1) && (data[c][j] == 1) && (data[c][j + 1] == 1)) wall += 1;
-		for (int i(1); i < r - 1; i++)
-		{			
-			if ((data[i][j - 1] == 1) && (data[i][j] == 1) && (data[i][j + 1] == 1)) wall += 1;
-			if ((data[i - 1][j] == 1) && (data[i][j] == 1) && (data[i + 1][j] == 1)) wall += 1;
-			if ((data[i][j] == 1) && (wall > 2))
-				cout << "): \t[" << i << "," << j << "]" << endl;
+		for (size_t j(0); j < c; j++)
+			if (data[i][j] != 0)
+				t = 1;
+		if (t == 0)
+		{
+			for (size_t y = i; y < c - 1; y++)
+				for (size_t j(0); j<r; j++)
+					data[j][y] = data[j][y + 1];
+			r = r - 1;
+			i = 0;
 		}
+		t = 0;
+	}	
+}
+
+void f::rotation90()
+{
+	int x = 0, y = 0, i;
+	for (int j = 0; j<c; j++){
+		for (i = r - 1; i >= 0; i--){
+			data[y][x++] = data[i][j];
+		}; y++; x = 0;
 	}
 }
 
-void f::Print()
+void f::print()
 {
-	for (int i(0); i < r; i++)
+	cout << endl;
+	for (size_t i(0); i < r; i++)
 	{
-		for (int j(0); j < c; j++)
+		for (size_t j(0); j < c; j++)
 			cout << data[i][j] << ' ';
 		cout << endl;
 	}
 }
 
+void f::res()
+{
+	ofstream fout("D\\result.txt", ios::out);
+	for (int i = 0; i < r; i++)
+	{
+		for (int j = 0; j < c; j++)
+		{
+			fout << data[i][j] << ' ';
+		}
+		cout << endl;
+	}
+}
 f::~f()
 {
 }

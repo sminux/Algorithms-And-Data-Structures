@@ -5,14 +5,17 @@
 class f
 {
 private:
-	int **data;
-	int c, r;
+	size_t **data;
+	size_t c, r;
 public:
-	f(int **arr, int cols, int rows);
 	~f(void);
+	f(size_t **arr, size_t c_r);
 	int square();
-	void checkCorrect();
+	bool checkCorrect();
 	void findAngle();
-	void Print();
+	void rotation90();
+	void delZeros();
+	void print();
+	void res();
 };
 
