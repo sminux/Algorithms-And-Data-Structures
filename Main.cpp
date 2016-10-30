@@ -1,79 +1,6 @@
 #include "polymino.h"
 #include "f.h"
 
-void delZeros(int **arr, int n) //from square matrix to normal
-{
-	int a = n, b = n;
-	int z = 0;
-
-	/*try{
-		for (int j(0); j < b; j++)//for colums
-		{
-			for (int i(0); i < a; i++)
-				z = z + arr[i][j];			
-			cout <<'-' << z << ' ';
-
-			if ((z == 0) && (j != (b-1)))
-			{
-				for (int i(0); i < a; i++){
-					arr[i][j] = arr[i][j + 1];
-					arr[i][j + 1] = 0;	//last colomn in memory yet
-				}		
-				for (int i = 0; i < b; i++)	delete arr[b-1];
-				b -= 1;
-			} 
-			else if ((z == 0) && (j == (b - 1)))
-			{
-				for (int i = 0; i < b; i++)	delete arr[b-1];
-				b -= 1;
-			} else z = 0;//for next colomn' counter
-		}
-
-		for (int i(0); i < a; i++)//for rows
-		{
-			for (int j(0); j < b; j++)
-				z = z + arr[i][j];
-			cout << z << ' ' << endl;
-
-			if ((z == 0) && (i!=(a-1)))
-			{
-				for (int l(0); l < a-1; l++)
-					for (int j(0); j < b; j++)
-					{
-						arr[l][j] = arr[l + 1][j];
-						arr[l + 1][j] = 0;	//last row in memory yet
-					}
-				for (int j = 0; j < b; j++)
-				{
-					delete arr[i];
-				}
-				a -= 1;
-			}
-			else if ((z == 0) && (i == (a - 1)))//delete last row
-			{
-				for (int j = 0; j < b; j++)
-				{
-					delete arr[i];
-				}
-				a -= 1;
-			}
-			else z = 0;
-		}
-	}
-	catch(err)
-	{
-		alert("Error!");
-	}*/
-
-		
-	for (int i(0); i < a; i++){	//look
-		for (int j = 0; j<b; j++){
-			cout << arr[i][j] << ' ';
-		}
-		cout << endl;
-	}
-}
-
 int main()		
 {
 	setlocale(LC_ALL, "rus");
@@ -93,38 +20,82 @@ int main()
 		}
 		else
 		{
-			queue<int> tmp;
-			int i;
-			int count = 0;
-			while (!F.eof()){
-				F >> i;
-				tmp.push(i);
-				++count;
-			}
-			int N = sqrt((double)count);
-			int **x = new int*[N];
-			for (int i = 0; i < N; i++) x[i] = new int[N];
-
-			for (int i = 0; i < N; i++)
-				for (int j = 0; j < N; j++){
-					x[i][j] = tmp.front();
-					tmp.pop();
+			size_t k = 0, lines = 0;
+			bool flag = false;
+			queue<size_t> q;
+			size_t i; char c;
+			try
+			{
+				while (!F.eof())
+				{
+					F >> c;
+					if (c != ' ') k++;
+					if (c == '\n') lines++;
 				}
-			
-			//delZeros(x, N);//will try
-			f fgr(x, N, N);
-			fgr.Print();
-			fgr.checkCorrect();
-			cout << fgr.square() << endl;
-			for (int i = 0; i<N; i++) delete[] x[i];
-			delete[] x;
+				cout << "Check: " << k << ' ' << lines;
+				if (k > (lines-1)*(lines-1))
+					throw invalid_argument("\nIncorrect input data!");
+				else
+				{
+					k = 0;
+					while (!F.eof())
+					{
+						F >> i;
+						q.push(size_t(i));
+						k++;
+					}
+					size_t N = sqrt((double)k);
+					size_t **x = new size_t*[N];
+					for (size_t i = 0; i < N; i++) x[i] = new size_t[N];
 
-			F.close();
-		}
-		cout << endl;
+					for (size_t i = 0; i < N; i++)
+					{
+						for (size_t j = 0; j < N; j++)
+						{
+							x[i][j] = q.front();
+							q.pop();
+							cout << x[i][j] << ' ';
+						}
+						cout << endl;
+					}
+
+					cout << endl << quantity << " figure:" << endl;
+
+					f fgr(x, N);
+					//fgr.delZeros();
+					//if(fgr.checkCorrect()) fgr.print(); 
+					fgr.print();
+					cout << endl;
+				
+					for (size_t i = 0; i < N; i++) delete[] x[i];
+					delete[] x;
+					F.close();
+
+				}
+			}
+			catch (invalid_argument& e)
+			{
+				cerr << e.what() << endl;
+			}	
+		}		
+
+
 	}
-	
-	
+
 	system("pause");
 	return 0;
 }
+
+
+/*for (int i = 1; i < N / 2; ++i) //turn right
+{
+int tmp = 0;
+for (int k = i; k < N - i; ++k)
+{
+tmp = x[i][k];
+x[i][k] = x[N - k + 1][i];
+x[N - k + 1][i] = x[N - i + 1][N - k + 1];
+x[N - i + 1][N - k + 1] = x[k][N - i + 1];
+x[k][N - i + 1] = tmp;
+}
+}*/
