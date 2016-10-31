@@ -25,7 +25,13 @@ bool f::checkCorrect()
 	{
 		for (int j(0); j < r - 1; j++)
 		{
-			if (data[i][j] == 1);
+			if (data[i][j] == 1)
+				if ((data[i][j + 1] != 1) && (data[i + 1][j] != 1))
+				{
+					cout << "Bad figure }:" << endl;
+					flag = false;
+				}
+					
 		}
 	}
 	return flag;
@@ -66,13 +72,38 @@ void f::delZeros()	//from square matrix to normal
 	}	
 }
 
+size_t f::findAngle()
+{
+	int s = 0;
+	int max = 0;
+	for (size_t i = 0; i < c; i++)
+	{
+		for (size_t j = 0; j < r; j++)
+		{
+			if (j > 0) s += data[i][j];
+			if (i == 0) s += data[i][j];
+		}
+		if (s >= max)
+		{
+			max = s;
+			s = 0;
+		}
+		c--; r--;
+		findAngle();
+	}
+	
+	return max;
+	
+}
+
 void f::rotation90()
 {
-	int x = 0, y = 0, i;
-	for (int j = 0; j<c; j++){
-		for (i = r - 1; i >= 0; i--){
+	int x = 0, y = 0;
+	for (int j = 0; j < c; j++){
+		for (int i = r - 1; i >= 0; i--){
 			data[y][x++] = data[i][j];
-		}; y++; x = 0;
+		} 
+		y++; x = 0;
 	}
 }
 
@@ -89,16 +120,26 @@ void f::print()
 
 void f::res()
 {
-	ofstream fout("D\\result.txt", ios::out);
-	for (int i = 0; i < r; i++)
+	ofstream f_res("D\\result.txt");
+	if (!f_res.is_open())
 	{
-		for (int j = 0; j < c; j++)
-		{
-			fout << data[i][j] << ' ';
-		}
-		cout << endl;
+		cout << "Wrong path to the result file!" << endl;
 	}
+	else
+	{
+		for (int i = 0; i < r; i++)
+		{
+			for (int j = 0; j < c; j++)
+			{
+				f_res << data[i][j] << ' ';
+			}
+			cout << endl;
+		}
+	}
+	
+	f_res.close();
 }
+
 f::~f()
 {
 }

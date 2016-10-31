@@ -6,6 +6,9 @@ class polymino
 {
 public:
 	polymino();
+	void compare();
+	void packing();
+	
 	~polymino();
 };
 

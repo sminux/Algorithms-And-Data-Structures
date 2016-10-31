@@ -12,7 +12,7 @@ public:
 	f(size_t **arr, size_t c_r);
 	int square();
 	bool checkCorrect();
-	void findAngle();
+	size_t findAngle();
 	void rotation90();
 	void delZeros();
 	void print();
