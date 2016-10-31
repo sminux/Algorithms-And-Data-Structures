@@ -1,15 +1,18 @@
 #include <iostream>
 #include <fstream>
-#include "inputData.h"
 #include <gtest/gtest.h>
 
 using namespace std;
 
-int main(int argc, char **argv)
+TEST(test_input_1, test)
 {
-	int **x;
-	if (check(x)) cout << "Good job!" << endl;
-	else cout << "Bad job!" << endl;
-	system("pause");
+
+}
+
+int main(int argc, char *argv[])
+{
+	::testing::InitGoogleTest(&argc, argv);
+	RUN_ALL_TESTS();
+
 	return 0;
 }
