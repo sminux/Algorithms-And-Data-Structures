@@ -9,11 +9,15 @@ private:
 	size_t c, r;
 public:
 	~f(void);
-	f(size_t **arr, size_t c_r);
+	f();
+	int **read(string file);
+	int get_c();
+	int get_r();
 	int square();
-	bool checkCorrect();
-	size_t findAngle();
-	void rotation90();
+	void checkCorrect();
+	int findAngle();
+	void rotation90R();
+	void flip();
 	void delZeros();
 	void print();
 	void res();
