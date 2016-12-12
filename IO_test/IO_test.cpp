@@ -1,6 +1,40 @@
 #include "AllIn.h"
 #include <gtest/gtest.h>
 
+void generate_test()
+{
+	srand(time(NULL));
+
+	ofstream test("D:\\HomeWork\\Figures&Result\\test.txt");
+
+	if (!test) {
+		cout << "Cannot open file!";
+	}
+
+	int val = rand() % 1000;
+
+	test << val << endl;
+
+	for (int i = 0; i < val; i++)
+	{
+		test << i << endl;
+		int size = rand() % 1;
+
+		test << size << endl;
+
+		for (int j = 0; j < size; j++)
+		{
+			for (int k = 0; k < size; k++)
+			{
+				test << rand() % 2 << " ";
+			}
+			test << endl;
+		}
+	}
+
+	test.close();
+}
+
 class f
 {
 private:
@@ -22,9 +56,9 @@ public:
 	{
 		return r;
 	}
-	int **read(string s)
+	int **read()
 	{
-		ifstream F(s);
+		ifstream F("D:\\HomeWork\\Figures&Result\\test.txt");
 		if (!F.is_open())
 		{
 			cout << "Wrong path to the file!" << endl;
@@ -106,7 +140,27 @@ public:
 
 	void checkCorrect();
 	int findAngle();
-	void res();
+	void res()
+	{
+		ofstream f_res("D:\\HomeWork\\Figures&Result\\resut.txt");
+		if (!f_res.is_open())
+		{
+			cout << "Wrong path to the result file!" << endl;
+		}
+		else
+		{
+			for (int i = 0; i < r; i++)
+			{
+				for (int j = 0; j < c; j++)
+				{
+					f_res << data[i][j] << ' ';
+				}
+				f_res << endl;
+			}
+		}
+		f_res.close();
+	}
+
 	explicit f(const size_t cols) :c{ cols }
 	{}
 };
@@ -125,25 +179,31 @@ class f_test : testing::Test
 };
 
 
-
-
 TEST(InputCheck, figureEmpty)
 {
+	generate_test();
 	f figure;
-	bool test = true;
 	bool S = false;
-	figure.read("D:\\HomeWork\\Figures&Result\\1.txt");
+	figure.read();
 	if( figure.square() > 0) S = true;
-	EXPECT_EQ(test, S);
+	EXPECT_EQ(true, S);
 }
 
 TEST(InputCheck, checkCols)
 {
+	generate_test();
 	f figure;
-	figure.read("D:\\HomeWork\\Figures&Result\\2.txt");
-	EXPECT_EQ(figure.get_c(), figure.get_c());
+	figure.read();
+	EXPECT_EQ(figure.get_c(), figure.get_r());
 }
 
+TEST(O_test, OutputData)
+{
+	f figure;
+	figure.read();
+	figure.res();
+	ASSERT_EQ(1,1);
+}
 
 
 int main(int argc, char *argv[])
