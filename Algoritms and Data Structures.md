@@ -5,11 +5,10 @@
 ---------------
 Классы реализации алгоритма решения полимино(пентамино):
 
-+f.h & f.cpp
-+polymino.h & polymino.cpp
++ f.h & f.cpp
++ polymino.h & polymino.cpp
 
 Тест проверки входных/выходных данных:
-
-*IO_test/IO_test.cpp
+* IO_test/IO_test.cpp
 
 Вопросы можно задать автору по адресу <eSpin55@yandex.ru>
