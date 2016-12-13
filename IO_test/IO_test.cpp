@@ -189,7 +189,7 @@ TEST(InputCheck, figureEmpty)
 	EXPECT_EQ(true, S);
 }
 
-TEST(InputCheck, checkCols)
+TEST(InputCheck, checkDim)
 {
 	generate_test();
 	f figure;
