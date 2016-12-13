@@ -1,23 +1,20 @@
 #include "AllIn.h"
 #include "f.h"
-#include "f.cpp"
 
 #pragma once
 
-class polymino
+class polymino 
 {
 private:
-	int q;
-	int r_glob, c_glob;
-	int *square;
-	size_t **polyArr;
-	f *fgr;
+	int n;
+	f *figures;
+	size_t **solvation;
+	size_t colums, rows;
 public:
-	polymino();
-	bool checkSquare(int *arrOfSquares, int index);
-	void compare(f f1, f f2);
-	void packing();
-	void result();
-	~polymino();
+	~polymino(void);
+	polymino(f *figures, int n);
+	bool checkSquare(int *arrOfSquares);
+	void print();
 };
+
 

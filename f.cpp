@@ -2,7 +2,7 @@
 
 f::f()
 {
-	cout << "k";
+	cout << "in|";		//метка инициализации
 	
 	size_t **data;
 	size_t c = 0, r = 0;
@@ -53,7 +53,7 @@ int **f::read(string s)
 			else
 			{
 				F.seekg(0, ios::beg);
-				F.clear();		//for repeated reading
+				F.clear();			//for repeated reading
 				k = 0;
 				while (!F.eof())
 				{
@@ -71,17 +71,16 @@ int **f::read(string s)
 					for (size_t j = 0; j < N; j++)
 					{
 						x[i][j] = q.front();
-						cout << x[i][j] << ' ';
+						//cout << x[i][j] << ' ';
 						q.pop();
 					}
-					cout << endl;
+					//cout << endl;
 				}
 
-				data = x;	//переносим в data и работаем с data[][]
+				data = x;	//go on with data[][]
 				c = N;
 				r = N;
-				cout << "\t   Dim: " << c << " * " << r << endl;
-				cout << "\tNormalization of matrix:" << endl;			
+				cout << "\tInput matr: " << c << " * " << r << endl;		
 
 				//for (size_t i = 0; i < N; i++) delete[] x[i];
 				//delete[] x;
@@ -111,61 +110,43 @@ int f::square()
 void f::checkCorrect()
 {
 	bool flag = false;
-	
-	/*int E = 0, V = square();	// check that it's connected graf: E >= V
-	for (size_t i(0); i < r; i++)
-	{
-		for (size_t j(0); j < c-1; j++)
-		{
-			if ((data[i][j] == 1) && (data[i][j] == data[i][j+1])) E +=1;
-		}
-	}
-	for (size_t i(0); i < r-1; i++)
-	{
-		for (size_t j(0); j < c; j++)
-		{
-			if ((data[i][j] == 1) && (data[i][j] == data[i+1][j])) E += 1;
-		}
-	}
 
-	if (V > 1)
-	{
-		if (E >= V) flag = true;
-	}
-	else if (V == 1) (E == 0) ? flag = true : flag = false;*/
-
-	/*const size_t new_A = c + r;	//make new array for adjacency matrix
+	const size_t new_A = c * r;	//make new array for adjacency matrix
 	size_t **A = new size_t*[new_A];
 	for (size_t a = 0; a < new_A; a++) A[a] = new size_t[new_A];
-	for (size_t i(0); i < c; i++)
-			for (size_t j(0); j < r; j++) A[i][j] = 0;
+	for (size_t i(0); i < new_A; i++)
+			for (size_t j(0); j < new_A; j++) A[i][j] = 0;
 	
 
 	for (size_t i(0); i < c-1; i++)
 	{
 		for (size_t j(0); j < r-1; j++)
 		{
-			if (data[i][j] == 1) A[r*i+j][r*i+j] = 1;	//adjacent to itself (loop)
-			if (data[i][j] == data[i][j + 1])
+			if ((data[i][j] == 1)&&(data[i][j] == data[i][j + 1]))
 			{
-				A[r*i][j] = 1;		//matrix is simetric
-				A[j][r*i] = 1;
+				A[i][j + 1] = 1;		//matrix is simetric
+				A[j + 1][r*i +i] = 1;
 			}
-		}
-	}
-	for (size_t j(0); j < r - 1; j++)
-	{
-		for (size_t i(0); i < c - 1; i++)
-		{
-			if (data[j][i] == 1) A[r*j + i][r*j + i] = 1;	//adjacent to itself 
-			if (data[j][i] == data[j][i + 1])
+		
+			if ((data[i][j] == 1) && (data[i][j] == data[i + 1][j]))
 			{
-				A[r*j][i] = 1;		//matrix is simetric
-				A[i][r*j] = 1;
+				A[i][j + 1] = 1;		//matrix is simetric
+				A[j][r*i + 1] = 1;
 			}
 		}
 	}
 
+	for (size_t i(0); i < new_A; i++)
+	{
+		for (size_t j(0); j < new_A; j++)
+		{
+			cout << A[i][j] << ' ';
+		}
+		cout << endl;
+	}
+	
+	
+	/*
 	int summ_x[(const int)new_A] = {0,};
 	for (size_t i(0); i < new_A; i++)	//if string has just one unit -> not normal figure
 	{
@@ -234,6 +215,7 @@ void f::delZeros()	//from square matrix to normal
 			i = 0;
 		}
 	}
+	cout << "\tFigure dim: " << c << " * " << r << endl;
 }
 
 void f::flip()
@@ -243,7 +225,6 @@ void f::flip()
 		for (size_t j = 0; j < c; j++)
 			swap(data[i][j], data[r - i][j]);
 	}
-	cout << "\t   Dim: " << c << " * " << r << endl;
 }
 
 int f::findAngle()
@@ -270,8 +251,8 @@ int f::findAngle()
 	
 }
 
-void f::rotation90R()
-{
+void f::rotation90L()
+{				//P -> P.transponize -> P.flip(horisontaly)
 	int x = 0, y = 0;
 	for (int j = 0; j < c; j++)
 	{
@@ -302,6 +283,27 @@ int f::get_c()
 int f::get_r()
 {
 	return r;
+}
+
+void f::res()
+{
+	ofstream f_res("D:\\HomeWork\\Figures&Result\\result.txt");
+	if (!f_res.is_open())
+	{
+		cout << "Wrong path to the result file!" << endl;
+	}
+	else
+	{
+		for (int i = 0; i < r; i++)
+		{
+			for (int j = 0; j < c; j++)
+			{
+				f_res << data[i][j] << ' ';
+			}
+			f_res << endl;
+		}
+	}
+	f_res.close();
 }
 
 f::~f()

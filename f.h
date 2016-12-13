@@ -16,7 +16,7 @@ public:
 	int square();
 	void checkCorrect();
 	int findAngle();
-	void rotation90R();
+	void rotation90L();
 	void flip();
 	void delZeros();
 	void print();
