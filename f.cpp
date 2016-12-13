@@ -107,7 +107,7 @@ int f::square()
 	return Sq;
 }
 
-void f::checkCorrect()
+bool f::checkCorrect()
 {
 	bool flag = false;
 
@@ -118,23 +118,36 @@ void f::checkCorrect()
 			for (size_t j(0); j < new_A; j++) A[i][j] = 0;
 	
 
-	for (size_t i(0); i < c-1; i++)
+	for (size_t i(0); i < r; i++)
 	{
-		for (size_t j(0); j < r-1; j++)
+		for (size_t j(0); j < c - 1; j++)
 		{
 			if ((data[i][j] == 1)&&(data[i][j] == data[i][j + 1]))
 			{
-				A[i][j + 1] = 1;		//matrix is simetric
-				A[j + 1][r*i +i] = 1;
+				A[i*c + j][i*c + j + 1] = 1;		//matrix is simetric
+				A[i*c + j + 1][i*c + j] = 1;
 			}
-		
-			if ((data[i][j] == 1) && (data[i][j] == data[i + 1][j]))
+			if ((data[j][i] == 1) && (data[j][i] == data[j][i + 1]))
 			{
-				A[i][j + 1] = 1;		//matrix is simetric
-				A[j][r*i + 1] = 1;
+				A[i*r + j][i*r + j + 1] = 1;		//matrix is simetric
+				A[i*r + j + 1][i*r + j] = 1;
 			}
 		}
 	}
+
+	for (size_t i(0); i < c; i++)
+	{
+		for (size_t j(0); j < r - 1; j++)
+		{
+			
+			if ((data[j][i] == 1) && (data[j][i] == data[j + 1][i]))
+			{
+				A[i*c + j][(i+1)*c + j] = 1;		//matrix is simetric
+				A[(i+1)*c + j][i*c + j] = 1;
+			}
+		}
+	}
+
 
 	for (size_t i(0); i < new_A; i++)
 	{
@@ -145,43 +158,36 @@ void f::checkCorrect()
 		cout << endl;
 	}
 	
-	
-	/*
-	int summ_x[(const int)new_A] = {0,};
-	for (size_t i(0); i < new_A; i++)	//if string has just one unit -> not normal figure
+	size_t *used = new size_t[new_A];
+	used = {0,};
+	int horizont = 0, vertical = 0;
+	for (size_t i(0); i < new_A; i++)
 	{
 		for (size_t j(0); j < new_A; j++)
 		{
-			summ_x[i] =+ A[i][j];
-		}
-		if (summ_x[i] == 1)
-		{
-			flag = false;
-			break;
-		}
-	}*/
-	
-	/*bool **used = new bool*[r];
-	for (size_t i = 0; i < r; i++) used[i] = new bool[c];
-	used = { 0, };
-
-	for (size_t i(0); i < r-1;)
-	{
-		for (size_t j(0); j < c - 1;)
-		{
-			while (data[i][j] != 1) j += 1;
-
-			if ((data[i][j] == 1) && (data[i][j + 1] == 1) && (used[i][j] == 0))
+			if ((A[i][j] == 1) && (used[j] == 0))
 			{
-				//проверка является ли это циклом и есть ли отверстия
-			}
-			else
-			{
-				used[i][j] = true;
+				swap(i, j);
+				used[j] = 1;
+				horizont += 1;
 			}
 		}
 	}
-	cout << flag << endl;*/
+	for (size_t i(0); i < new_A; i++)
+	{
+		for (size_t j(0); j < new_A; j++)
+		{
+			if ((A[j][i] == 1) && (used[i] == 0))
+			{
+				swap(i, j);
+				used[i] = 1;
+				vertical += 1;
+			}
+		}
+	}
+	
+	(horizont != vertical)? flag = false: flag = true;
+	return flag;
 }
 
 void f::delZeros()	//from square matrix to normal
@@ -261,6 +267,12 @@ void f::rotation90L()
 			data[y][x++] = data[i][j];
 		} 
 		y++; x = 0;
+	}
+
+	for (size_t i = 0; i < c / 2; i++)
+	{
+		for (size_t j = 0; j < r; j++)
+			swap(data[i][j], data[r - i][j]);
 	}
 }
 
