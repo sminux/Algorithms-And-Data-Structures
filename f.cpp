@@ -195,7 +195,7 @@ bool f::checkCorrect()
 
 void f::delZeros()	//from square matrix to normal
 {
-	for (size_t i = 0; i<r; i++)	//delete  empty rows
+	for (size_t i = 0; i < r; i++)	//delete  empty rows
 	{
 		int zeros = 0;
 		for (size_t j = 0; j < c; j++)
@@ -224,15 +224,22 @@ void f::delZeros()	//from square matrix to normal
 			i = 0;
 		}
 	}
-	cout << "\tFigure dim: " << c << " * " << r << endl;
+	cout << "\tFigure dim: [" << r << " * " << c << "]" << endl;
 }
 
-void f::flip()
+void f::flipVerticaly()
 {
 	for (size_t i = 0; i < r/2; i++)
 	{	
-		for (size_t j = 0; j < c; j++)
-			swap(data[i][j], data[r - i][j]);
+		for (size_t j = 0; j < c; j++) swap(data[i][j], data[r - i - 1][j]);
+	}
+}
+
+void f::flipHorizontaly()
+{
+	for (size_t i = 0; i < c / 2; i++)
+	{
+		for (size_t j = 0; j < r; j++) swap(data[j][i], data[j][c - i - 1]);
 	}
 }
 
@@ -260,23 +267,18 @@ int f::findAngle()
 	
 }
 
-void f::rotation90L()
+void f::rotation90R()
 {				//P -> P.transponize -> P.flip(horisontaly)
-	int x = 0, y = 0;
-	for (int j = 0; j < c; j++)
-	{
-		for (int i = r - 1; i >= 0; i--)
-		{
-			data[y][x++] = data[i][j];
-		} 
-		y++; x = 0;
-	}
+	int n = 0;
+	(r > c) ? n = r : n = c;	//it's easy to ratate square matrix
 
-	for (size_t i = 0; i < c / 2; i++)
-	{
-		for (size_t j = 0; j < r; j++)
-			swap(data[i][j], data[r - i][j]);
-	}
+	for (size_t i = 0; i < n ; ++i)
+		for (size_t j = i; j < n; ++j)		//beggining from [i] 'cause transponation over main diagonal
+			swap(data[i][j], data[j][i]);
+
+	swap(r, c);
+	flipHorizontaly();
+	
 }
 
 void f::print()
