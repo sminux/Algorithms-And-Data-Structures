@@ -10,21 +10,21 @@ int main()
 	f *fgr = new f[q];
 
 	string namefile;
-	for (int quantity = 1; quantity <= q; quantity++)
+	for (int quantity = 0; quantity < q; quantity++)
 	{
-		namefile = to_string(quantity);
+		namefile = to_string(quantity + 1);
 		string s1 = "D:\\HomeWork\\Figures&Result\\", s2 = ".txt";
 		string s = s1 + namefile + s2;
-		cout << endl << "\t#" << quantity << endl;
 
 		fgr[quantity].read(s);
-		/*fgr[quantity].checkCorrect();
-		fgr[quantity].delZeros();
+		//fgr[quantity].checkCorrect();
+		/*fgr[quantity].delZeros();
 		fgr[quantity].res();*/
 	}
 
 	polymino BestSolverEver(fgr, q);
 	BestSolverEver.print();
+	BestSolverEver.poligon();
 
 	cout << "_________________________________________" << endl;
 	

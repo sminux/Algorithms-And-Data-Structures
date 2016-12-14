@@ -79,8 +79,7 @@ int **f::read(string s)
 
 				data = x;	//go on with data[][]
 				c = N;
-				r = N;
-				cout << "\tInput matr: " << c << " * " << r << endl;		
+				r = N;		
 
 				//for (size_t i = 0; i < N; i++) delete[] x[i];
 				//delete[] x;
@@ -105,6 +104,11 @@ int f::square()
 		}
 	}
 	return Sq;
+}
+
+size_t **f::array()
+{
+	return data;
 }
 
 bool f::checkCorrect()
@@ -158,7 +162,7 @@ bool f::checkCorrect()
 		cout << endl;
 	}
 	
-	size_t *used = new size_t[new_A];
+	/*size_t *used = new size_t[new_A];
 	used = {0,};
 	int horizont = 0, vertical = 0;
 	for (size_t i(0); i < new_A; i++)
@@ -186,7 +190,7 @@ bool f::checkCorrect()
 		}
 	}
 	
-	(horizont != vertical)? flag = false: flag = true;
+	(horizont != vertical)? flag = false: flag = true;*/
 	return flag;
 }
 
