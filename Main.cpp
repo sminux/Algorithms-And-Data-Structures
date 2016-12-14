@@ -18,13 +18,14 @@ int main()
 
 		fgr[quantity].read(s);
 		//fgr[quantity].checkCorrect();
-		/*fgr[quantity].delZeros();
-		fgr[quantity].res();*/
+		fgr[quantity].delZeros();
+		//fgr[quantity].res();
 	}
 
 	polymino BestSolverEver(fgr, q);
 	BestSolverEver.print();
 	BestSolverEver.poligon();
+	cout << BestSolverEver.getMaxColumn() << " x " << BestSolverEver.getMaxRow() << endl;
 
 	cout << "_________________________________________" << endl;
 	

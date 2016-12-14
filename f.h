@@ -4,7 +4,7 @@
 
 class f
 {
-private:
+public:
 	size_t **data;
 	size_t c, r;
 public:
@@ -13,8 +13,9 @@ public:
 	int **read(string file);
 	int get_c();
 	int get_r();
+	size_t **array();
 	int square();
-	void checkCorrect();
+	bool checkCorrect();
 	int findAngle();
 	void rotation90L();
 	void flip();

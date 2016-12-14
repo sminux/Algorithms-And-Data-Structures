@@ -106,10 +106,7 @@ int f::square()
 	return Sq;
 }
 
-size_t **f::array()
-{
-	return data;
-}
+
 
 bool f::checkCorrect()
 {
@@ -192,6 +189,8 @@ bool f::checkCorrect()
 	
 	(horizont != vertical)? flag = false: flag = true;*/
 	return flag;
+
+	//delZeros();
 }
 
 void f::delZeros()	//from square matrix to normal
@@ -204,7 +203,7 @@ void f::delZeros()	//from square matrix to normal
 		if (zeros == 0)
 		{
 			for (size_t y = i; y < r - 1; y++)
-				for (size_t j = 0; j<c; j++)
+				for (size_t j = 0; j < c; j++)
 					data[y][j] = data[y + 1][j];
 			r--;
 			i = 0; 
@@ -219,7 +218,7 @@ void f::delZeros()	//from square matrix to normal
 		if (zeros == 0)
 		{
 			for (size_t y = i; y < c - 1; y++)
-				for (size_t j = 0; j<r; j++)
+				for (size_t j = 0; j < r; j++)
 					data[j][y] = data[j][y+1];
 			c--;
 			i = 0;
@@ -301,25 +300,9 @@ int f::get_r()
 	return r;
 }
 
-void f::res()
+size_t **f::array()
 {
-	ofstream f_res("D:\\HomeWork\\Figures&Result\\result.txt");
-	if (!f_res.is_open())
-	{
-		cout << "Wrong path to the result file!" << endl;
-	}
-	else
-	{
-		for (int i = 0; i < r; i++)
-		{
-			for (int j = 0; j < c; j++)
-			{
-				f_res << data[i][j] << ' ';
-			}
-			f_res << endl;
-		}
-	}
-	f_res.close();
+	return data;
 }
 
 f::~f()

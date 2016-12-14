@@ -2,6 +2,7 @@
 
 polymino::polymino(f *figures, int n)
 {
+	cout << "Procces of comparing..." << endl;
 	this->n = n;
 	this->figures = new f[n];
 	for (int i(0); i < n; i++) this->figures[i] = figures[i];
@@ -30,18 +31,8 @@ void polymino::poligon()
 
 	(globalSquare % 2 != 0) ? (cout << "Figures do not add up!") : (cout << "Area of " << globalSquare);
 
-	
 }
 
-bool polymino::checkSquare(int *arrOfSquares)
-{
-	bool flag = 0;
-	int GlobalSquare = 0;
-	for (size_t i(0); i < n; i++) GlobalSquare += 1;
-	(GlobalSquare % 2 != 0) ? (flag = false): (flag = true);
-	cout << "S" << GlobalSquare << endl;
-	return flag;
-}
 
 void polymino::print()
 {
@@ -59,6 +50,45 @@ void polymino::print()
 		}
 		cout << endl;
 	}
+}
+
+void polymino::resultFile()
+{
+	
+	ofstream f_res("D:\\HomeWork\\Figures&Result\\result.txt");
+	if (!f_res.is_open())
+	{
+		cout << "Wrong path to the result file!" << endl;
+	}
+	else
+	{
+		for (int i = 0; i < rows; i++)
+		{
+			for (int j = 0; j < colums; j++)
+			{
+				f_res << solvation[i][j] << ' ';
+			}
+			f_res << endl;
+		}
+	}
+	f_res.close();
+	
+}
+
+int polymino::getMaxColumn()
+{
+	int max_column = 0;
+	for (int i(0); i < n; i++)
+			if (figures[i].get_c() > max_column) max_column = figures[i].get_c();		
+	return max_column;
+}
+
+int polymino::getMaxRow()
+{
+	int max_row = 0;
+	for (int i(0); i < n; i++)
+		if (figures[i].get_r() > max_row) max_row = figures[i].get_r();
+	return max_row;
 }
 
 polymino::~polymino()

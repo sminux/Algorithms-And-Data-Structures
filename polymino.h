@@ -13,8 +13,12 @@ private:
 public:
 	~polymino(void);
 	polymino(f *figures, int n);
-	bool checkSquare(int *arrOfSquares);
+	int getMaxColumn();
+	int getMaxRow();
+	void compare();
+	void poligon();
 	void print();
+	void resultFile();
 };
 
 
