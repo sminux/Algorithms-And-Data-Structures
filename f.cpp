@@ -2,10 +2,18 @@
 
 f::f()
 {
-	cout << "in|";		//метка инициализации
+	cout << "in|";		//initialization label
 	
-	size_t **data;
-	size_t c = 0, r = 0;
+	**data;
+	c = 0, r = 0;
+	hint = "";
+}
+
+f::f(size_t **data, int r, int c)
+{
+	this->r = r;
+	this->c = c;
+	this->data = data;
 }
 
 int **f::read(string s)
@@ -71,10 +79,8 @@ int **f::read(string s)
 					for (size_t j = 0; j < N; j++)
 					{
 						x[i][j] = q.front();
-						//cout << x[i][j] << ' ';
 						q.pop();
 					}
-					//cout << endl;
 				}
 
 				data = x;	//go on with data[][]
@@ -106,7 +112,11 @@ int f::square()
 	return Sq;
 }
 
-
+int f::plenum()
+{
+	int fulness = (c*r) - square();
+	return fulness;
+}
 
 bool f::checkCorrect()
 {
@@ -187,10 +197,65 @@ bool f::checkCorrect()
 		}
 	}
 	
-	(horizont != vertical)? flag = false: flag = true;*/
-	return flag;
+	(horizont != vertical)? flag = false: flag = true;
 
-	//delZeros();
+	delZeros();*/ 
+
+	bool polymino = false;
+
+	if (flag)	
+		(plenum() == 0) ? polymino = false : polymino = true;
+
+	return polymino;
+}
+
+void f::findAngle()
+{
+	size_t **record = new size_t*[r];
+	for (size_t i = 0; i < r; i++) record[i] = new size_t[c];
+
+	int row_length = 0, column_length = 0, new_row_length, new_column_length;
+	int record_r, record_c;
+	
+	for (int i = 0; i < 4; i++)
+	{ 
+		new_row_length = 0; new_column_length = 0;
+		if ((c > 1) && (r > 1))		//else we have no angle
+		{ 
+			if ((data[0][0] == 1) && (data[0][0] == data[0][1]) && (data[0][0] == data[1][0]))
+			{ 
+
+				for (int Y = 0; Y < c; Y++)
+				{
+					if (data[0][Y] == 1)new_column_length++;
+				}
+				
+				for (int Y = 0; Y < r; Y++)
+				{
+					if (data[Y][0] == 1)new_row_length++;
+				}
+				
+
+				if ((new_row_length >= row_length) && (new_column_length >= column_length))
+				{
+					for (int i(0); i < r; i++)
+					{
+						for (int j(0); j < c; j++)
+							record[i][j] = data[i][j];
+					}
+					record_c = c;
+					record_r = r;
+					row_length = new_row_length;
+					new_column_length = new_column_length;
+				}
+			}	
+			rotation90R();
+		}
+		
+	}
+
+	data = record;
+	c = record_c; r = record_r;
 }
 
 void f::delZeros()	//from square matrix to normal
@@ -224,7 +289,7 @@ void f::delZeros()	//from square matrix to normal
 			i = 0;
 		}
 	}
-	cout << "\tFigure dim: [" << r << " * " << c << "]" << endl;
+	cout << "dim: [" << r << " * " << c << "]" << endl;
 }
 
 void f::flipVerticaly()
@@ -233,6 +298,7 @@ void f::flipVerticaly()
 	{	
 		for (size_t j = 0; j < c; j++) swap(data[i][j], data[r - i - 1][j]);
 	}
+	hint += "F(v)";
 }
 
 void f::flipHorizontaly()
@@ -241,30 +307,7 @@ void f::flipHorizontaly()
 	{
 		for (size_t j = 0; j < r; j++) swap(data[j][i], data[j][c - i - 1]);
 	}
-}
-
-int f::findAngle()
-{
-	int s = 0;
-	int max = 0;
-	for (size_t i = 0; i < r; i++)
-	{
-		for (size_t j = 0; j < c; j++)
-		{
-			if (j > 0) s += data[i][j];
-			if (i == 0) s += data[i][j];
-		}
-		if (s >= max)
-		{
-			max = s;
-			s = 0;
-		}
-		c--; r--;
-		findAngle();
-	}
-	
-	return max;
-	
+	hint += "F(h)";
 }
 
 void f::rotation90R()
@@ -278,18 +321,26 @@ void f::rotation90R()
 
 	swap(r, c);
 	flipHorizontaly();
-	
+	hint += "R";
+}
+
+void f::rotation90L()
+{
+	int n = 0;
+	(r > c) ? n = r : n = c;	//it's easy to ratate square matrix
+	for (int i(0); i < 3; i++) rotation90R();
+	hint += "L";
 }
 
 void f::print()
 {
-	cout << endl;
 	for (size_t i(0); i < r; i++)
 	{
 		for (size_t j(0); j < c; j++)
 			cout << data[i][j] << ' ';
 		cout << endl;
 	}
+	cout << "_____________________" << endl;
 }
 
 int f::get_c()

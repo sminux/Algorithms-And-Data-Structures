@@ -6,18 +6,30 @@
 class polymino 
 {
 private:
+
 	int n;
+
 	f *figures;
+
 	size_t **solvation;
+
 	size_t colums, rows;
+
+	string hint;
+
 public:
 	~polymino(void);
+
 	polymino(f *figures, int n);
-	int getMaxColumn();
-	int getMaxRow();
+
+	size_t **mergeFigures(size_t **first_figure, int r1, int c1, size_t ** second_figure, int r2, int c2);
+
 	void compare();
-	void poligon();
-	void print();
+
+	int poligon();
+
+	//void poligonVariability();
+
 	void resultFile();
 };
 

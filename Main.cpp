@@ -5,28 +5,29 @@ int main()
 {
 	setlocale(LC_ALL, "rus");
 
-	size_t q = 3;						//will be enter a few figures, each figure in its own file.txt
+	size_t q = 3;						//enter a few figures, each figure in its own [file].txt
 	int *square = new int[q];
 	f *fgr = new f[q];
 
 	string namefile;
-	for (int quantity = 0; quantity < q; quantity++)
+	for (size_t quantity = 0; quantity < q; quantity++)
 	{
 		namefile = to_string(quantity + 1);
-		string s1 = "D:\\HomeWork\\Figures&Result\\", s2 = ".txt";
+		string s1 = "Figures&Result\\", s2 = ".txt";
 		string s = s1 + namefile + s2;
 
 		fgr[quantity].read(s);
-		//fgr[quantity].checkCorrect();
 		fgr[quantity].delZeros();
-		//fgr[quantity].res();
+		//fgr[quantity].rotation90R();
+		//fgr[quantity].print();
+		
 	}
 
 	polymino BestSolverEver(fgr, q);
-	BestSolverEver.print();
-	BestSolverEver.poligon();
-	cout << BestSolverEver.getMaxColumn() << " x " << BestSolverEver.getMaxRow() << endl;
-
+	BestSolverEver.compare();
+	BestSolverEver.resultFile();
+	
+	
 	cout << "_________________________________________" << endl;
 	
 	system("pause");

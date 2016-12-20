@@ -3,5 +3,6 @@
 #include <conio.h>
 #include <queue>
 #include <string>
+#include <cstdlib>
 
 using namespace std;
