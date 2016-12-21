@@ -214,6 +214,8 @@ void f::findAngle()
 	size_t **record = new size_t*[r];
 	for (size_t i = 0; i < r; i++) record[i] = new size_t[c];
 
+	record = data;
+
 	int row_length = 0, column_length = 0, new_row_length, new_column_length;
 	int record_r, record_c;
 	
@@ -246,7 +248,7 @@ void f::findAngle()
 					record_c = c;
 					record_r = r;
 					row_length = new_row_length;
-					new_column_length = new_column_length;
+					column_length = new_column_length;
 				}
 			}	
 			rotation90R();
