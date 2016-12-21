@@ -211,53 +211,47 @@ bool f::checkCorrect()
 
 void f::findAngle()
 {
-	size_t **record = new size_t*[r];
-	for (size_t i = 0; i < r; i++) record[i] = new size_t[c];
+	/*	size_t **record = new size_t*[r];
+	for (size_t i = 0; i < r; i++) record[i] = new size_t[c];*/
 
-	record = data;
+	bool continual = true;
+	int definite = 0;
 
-	int row_length = 0, column_length = 0, new_row_length, new_column_length;
-	int record_r, record_c;
+	int row_length = 0, column_length = 0, new_row_length = 0, new_column_length = 0;
 	
 	for (int i = 0; i < 4; i++)
 	{ 
-		new_row_length = 0; new_column_length = 0;
-		if ((c > 1) && (r > 1))		//else we have no angle
-		{ 
-			if ((data[0][0] == 1) && (data[0][0] == data[0][1]) && (data[0][0] == data[1][0]))
-			{ 
-
-				for (int Y = 0; Y < c; Y++)
-				{
-					if (data[0][Y] == 1)new_column_length++;
-				}
-				
-				for (int Y = 0; Y < r; Y++)
-				{
-					if (data[Y][0] == 1)new_row_length++;
-				}
-				
-
-				if ((new_row_length >= row_length) && (new_column_length >= column_length))
-				{
-					for (int i(0); i < r; i++)
-					{
-						for (int j(0); j < c; j++)
-							record[i][j] = data[i][j];
-					}
-					record_c = c;
-					record_r = r;
-					row_length = new_row_length;
-					column_length = new_column_length;
-				}
-			}	
-			rotation90R();
-		}
+		new_row_length = 0, new_column_length = 0;
 		
+		if ((data[0][0] == 1) && (data[0][0] == data[0][1]) && (data[0][0] == data[1][0]))
+		{ 
+			for (int Y = 0; Y < c; Y++)
+			{
+				if ((data[0][Y] == 1)&&(continual == true)) new_column_length++;
+				if (data[0][Y] == 0) continual = false;
+			}
+				
+			for (int X = 0; X < r; X++)
+			{
+				if ((data[X][0] == 1) && (continual == true)) new_row_length++;
+				if (data[X][0] == 0) continual = false;
+			}
+
+			if (new_row_length + new_column_length >= row_length + column_length)
+			{
+				definite = i;
+				row_length = new_row_length;
+				column_length = new_column_length;
+			}
+		}
+
+		rotation90R();
 	}
 
-	data = record;
-	c = record_c; r = record_r;
+	for (int i(0); i < definite; i++)
+		rotation90R();
+
+	print();
 }
 
 void f::delZeros()	//from square matrix to normal

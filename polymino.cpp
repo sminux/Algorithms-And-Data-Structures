@@ -38,12 +38,9 @@ polymino::polymino(f *figures, int n)
 size_t **polymino::mergeFigures(size_t **first_figure, int r1, int c1, size_t ** second_figure, int r2, int c2)
 {
 	f prob_f(first_figure, r1, c1);
-	prob_f.findAngle();//здесь ошибка
+	prob_f.findAngle();
 
-	/*size_t **additional_arr = new size_t*[r1 + r2 - 1]; 
-	for (int i = 0; i < r1 + r2; i++) additional_arr[i] = new size_t[c1 + c2 - 1];
-	for (int i(0); i < r1 + r2 - 1; i++)
-		for (int j(0); j < c1 + c2 - 1; j++) additional_arr[i][j] = 1;*/
+	f prob_f_second(second_figure, r2, c2);
 
 	rows = prob_f.get_r();
 	colums = prob_f.get_c();
@@ -57,57 +54,113 @@ size_t **polymino::mergeFigures(size_t **first_figure, int r1, int c1, size_t **
 	for (int i(0); i < r2; i++)
 	{
 		for (int j(0); j < c2; j++)
-		{ 
+		{
 			if (second_figure[i][j] == 1)units++;
-			cout << second_figure[i][j] << ' ';
 		}
-		cout << endl;
 	}
-	
+
 
 	/*for (int i(0); i < r1; i++)
 	{
-		for (int j(0); j < c1; j++)
-		{
-			if (first_figure[i][j] == 1) {
-				additional_arr[i][j] = 0;
-			}
-			else if (first_figure[i][j] == 0) {
-				additional_arr[i][j] = 1;
-			}
-		}
+	for (int j(0); j < c1; j++)
+	{
+	if (first_figure[i][j] == 1) {
+	additional_arr[i][j] = 0;
+	}
+	else if (first_figure[i][j] == 0) {
+	additional_arr[i][j] = 1;
+	}
+	}
 	}*/
 
 	bool point = true;		//to check the first equivalention
-	/*serch for 2nd massiv in fake_figure*/
-	for (int i(0); i < rows - r2 + 1; i++)
-	{
-		for (int j(0); j < colums - c2 + 1; j++)
-		{
-			int koefficient_of_similarity = 0;
+	bool find = false;
 
-			for (int subarrayX = 0; subarrayX < r2; subarrayX++)
+
+	if ((prob_f.get_r() > prob_f_second.get_r()) || (prob_f.get_c() > prob_f_second.get_c()))
+	{
+		/*serch for 2nd massiv in fake_figure*/
+		for (int i(0); i < rows - r2 + 1; i++)
+		{
+			for (int j(0); j < colums - c2 + 1; j++)
 			{
-				for (int subarrayY = 0; subarrayY < c2; subarrayY++)
-				{
-					if ((fake_figure[subarrayX + i][subarrayY + j] == 0) && (second_figure[subarrayX][subarrayY] == 1)) koefficient_of_similarity++;
-				}
-			}
-			if ((koefficient_of_similarity == units) && (point == true))
-			{
+				int koefficient_of_similarity = 0;
+
 				for (int subarrayX = 0; subarrayX < r2; subarrayX++)
 				{
 					for (int subarrayY = 0; subarrayY < c2; subarrayY++)
 					{
-						if (second_figure[subarrayX][subarrayY] == 1) fake_figure[subarrayX + i][subarrayY + j] = 1;
+						if ((fake_figure[subarrayX + i][subarrayY + j] == 0) && (second_figure[subarrayX][subarrayY] == 1)) koefficient_of_similarity++;
 					}
 				}
-				point = false;
+				if ((koefficient_of_similarity == units) && (point == true))
+				{
+					for (int subarrayX = 0; subarrayX < r2; subarrayX++)
+					{
+						for (int subarrayY = 0; subarrayY < c2; subarrayY++)
+						{
+							if (second_figure[subarrayX][subarrayY] == 1) fake_figure[subarrayX + i][subarrayY + j] = 1;
+						}
+					}
+					point = false;
+					find = true;
+				}
 			}
 		}
 	}
 
-	return fake_figure;
+	if (find == true) return fake_figure;
+	else
+	{
+
+
+		prob_f_second.rotation90R();
+		//prob_f_second.print();
+		int rows2 = prob_f_second.get_r();
+		int cols2 = prob_f_second.get_c();
+
+		second_figure = prob_f_second.array();
+		//serch again
+		for (int i(0); i < rows - rows2 + 1; i++)
+		{
+			for (int j(0); j < colums - cols2 + 1; j++)
+			{
+				int koefficient_of_similarity = 0;
+
+				for (int subarrayX = 0; subarrayX < rows2; subarrayX++)
+				{
+					for (int subarrayY = 0; subarrayY < cols2; subarrayY++)
+					{
+						if ((fake_figure[subarrayX + i][subarrayY + j] == 0) && (second_figure[subarrayX][subarrayY] == 1)) koefficient_of_similarity++;
+					}
+				}
+				if ((koefficient_of_similarity == units) && (point == true))
+				{
+					for (int subarrayX = 0; subarrayX < rows2; subarrayX++)
+					{
+						for (int subarrayY = 0; subarrayY < cols2; subarrayY++)
+						{
+							if (second_figure[subarrayX][subarrayY] == 1) fake_figure[subarrayX + i][subarrayY + j] = 1;
+						}
+					}
+					point = false;
+					find = true;
+				}
+			}
+		}
+		return fake_figure;
+	}
+	
+
+
+	
+	
+
+	/*size_t **additional_arr = new size_t*[r1 + r2 - 1];
+	for (int i = 0; i < r1 + r2; i++) additional_arr[i] = new size_t[c1 + c2 - 1];
+	for (int i(0); i < r1 + r2 - 1; i++)
+	for (int j(0); j < c1 + c2 - 1; j++) additional_arr[i][j] = 1;*/
+
 	/*if (get_solve) return fake_figure;
 	else
 	{
@@ -189,14 +242,14 @@ void polymino::compare()
 {	    
 	for (int i = 0; i < n - 1; i++)
 	{
-		if (figures[i].get_c()*figures[i].get_r() < figures[i + 1].get_c()*figures[i + 1].get_r())
+		if (figures[i].get_c()*figures[i].get_r() < figures[i + 1].get_c()*figures[i + 1].get_r())//increase by dimention
 		{ 
 			swap(figures[i], figures[i + 1]);
 		}
 			
-		if (figures[i].get_c()*figures[i].get_r() < figures[i + 1].get_c()*figures[i + 1].get_r())
+		if (figures[i].get_c()*figures[i].get_r() == figures[i + 1].get_c()*figures[i + 1].get_r())
 		{
-			if (figures[i].square() < figures[i + 1].square())
+			if (figures[i].square() > figures[i + 1].square())//decrease by square
 			{
 				swap(figures[i], figures[i + 1]);
 			}
@@ -210,17 +263,12 @@ void polymino::compare()
 	colums = figures[0].get_c(); 
 	rows = figures[0].get_r();
 
-	/*while (!get_solve)
+	for (int i = 0; i < n; i++)
 	{
-	}*/
-
-	for (int i = 0; i < (n - 1); i++)
-	{
-		//figures[i + 1].findAngle();
-		//figures[i + 1].print();
 		solvation = mergeFigures(solvation, rows, colums, figures[i + 1].array(), figures[i + 1].get_r(), figures[i + 1].get_c());
 		
-		//if (result.plenum() == 0) get_solve = true;
+		/*if (result.plenum() == 0) get_solve = true;
+		else hint = "No ansver";*/
 	}
 	f result(solvation, rows, colums);
 	result.print();
