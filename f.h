@@ -14,11 +14,15 @@ public:
 
 	f(size_t **data, int r, int c);
 
+	void reInitialise(size_t **data, int r, int c);
+
 	int **read(string file);
 
 	int square();
 
 	int plenum();
+
+	int plenumHalf();
 
 	bool checkCorrect();
 

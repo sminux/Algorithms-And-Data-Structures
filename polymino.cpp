@@ -30,11 +30,6 @@ polymino::polymino(f *figures, int n)
 }*/
 
 
-/*void polymino::poligonVariability()
-{
-	
-
-}*/
 
 void polymino::searchEmpty(size_t **figure, int r1, int c1, size_t ** second_figure, int r2, int c2)
 {
@@ -82,89 +77,347 @@ size_t **polymino::mergeFigures(size_t **first_figure, int r1, int c1, size_t **
 		for (int j(0); j < c2; j++)
 			if (second_figure[i][j] == 1) sq++;
 
+	f record(first_figure, r1, c1);	//to return
 	f prob_f(first_figure, r1, c1);
 	prob_f.findAngle();
 
-	f prob_f_second(second_figure, r2, c2);
-
-	rows = prob_f.get_r();
-	colums = prob_f.get_c();
-
 	size_t **fake_figure = new size_t*[rows];
 	for (int i = 0; i < rows; i++) fake_figure[i] = new size_t[colums];
+	for (int i(0); i < r1; i++)
+		for (int j(0); j < c1; j++) fake_figure[i][j] = prob_f.array()[i][j];
 
-	fake_figure = prob_f.array();
+	f prob_f_second(second_figure, r2, c2);
+	prob_f_second.findAngle();
+
+	int record_plenum = c1 + r1 + r2 + c2;		//берем заведомо больше
+	rows = prob_f.get_r();
+	colums = prob_f.get_c();
 
 
 	bool find = false;
 
 	if ((sq <= r1*c1) && (prob_f.plenum() >= prob_f_second.square())) //if empty area is adecuatly for second figure
-	{ 
+	{
 		if ((prob_f.get_r() >= prob_f_second.get_r()) && (prob_f.get_c() >= prob_f_second.get_c()))
 		{
+			rows = prob_f.get_r();		//maybe it is not nessesary
+			colums = prob_f.get_c();	//
+
 			searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
 			f prob_f_new(fake_figure, rows, colums);
-			if (prob_f_new.array() == prob_f.array()) {
-				prob_f_second.flipHorizontaly();
-				searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
-				f prob_f_new(fake_figure, rows, colums);
-				if (prob_f_new.array() == prob_f.array()) {
-					prob_f_second.flipVerticaly();
-					searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
-					f prob_f_new(fake_figure, rows, colums);
-					if (prob_f_new.array() == prob_f.array()) {
-						prob_f_second.flipHorizontaly();
-						searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
-						f prob_f_new(fake_figure, rows, colums);
-						if (prob_f_new.array() == prob_f.array()) {
-							prob_f_second.flipVerticaly();	//back to begining state
-						}
-						//(else) - nothing 'couse we came to start state
-					}
-					else find = true;
+			if (prob_f_new.array() != prob_f.array())
+			{
+				cout << "! " << prob_f_new.plenumHalf() << endl;
+				prob_f_new.print();
+				if (prob_f_new.plenumHalf() < record_plenum)
+				{
+					record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
+					record_plenum = prob_f_new.plenumHalf();
 				}
-				else find = true;
+				find = true;
 			}
-			else find = true;
+
+
+			fake_figure = prob_f.array();
+
+			prob_f_second.flipVerticaly();
+			searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
+			prob_f_new.reInitialise(fake_figure, rows, colums);
+			if (prob_f_new.array() != prob_f.array())
+			{
+				cout << "! " << prob_f_new.plenumHalf() << endl;
+				prob_f_new.print();
+				if (prob_f_new.plenumHalf() < record_plenum)
+				{
+					std::cout << "Y" << endl;
+					record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
+					record_plenum = prob_f_new.plenumHalf();
+				}
+				find = true;
+			}
+
+			fake_figure = prob_f.array();
+
+			prob_f_second.flipHorizontaly();
+			searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
+			prob_f_new.reInitialise(fake_figure, rows, colums);
+			if (prob_f_new.array() != prob_f.array())
+			{
+				cout << "! " << prob_f_new.plenumHalf() << endl;
+				prob_f_new.print();
+				if (prob_f_new.plenumHalf() < record_plenum)
+				{
+					std::cout << "Y" << endl;
+					record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
+					record_plenum = prob_f_new.plenumHalf();
+				}
+				find = true;
+			}
+
+			fake_figure = prob_f.array();
+
+			prob_f_second.flipVerticaly();
+			searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
+			prob_f_new.reInitialise(fake_figure, rows, colums);
+			if (prob_f_new.array() != prob_f.array())
+			{
+				cout << "! " << prob_f_new.plenumHalf() << endl;
+				prob_f_new.print();
+				if (prob_f_new.plenumHalf() < record_plenum)
+				{
+					std::cout << "Y" << endl;
+					record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
+					record_plenum = prob_f_new.plenumHalf();
+				}
+				find = true;
+			}
+
 		}
 
-		if ((prob_f.get_r() < prob_f_second.get_r()) && (prob_f.get_c() < prob_f_second.get_c()))
+		if ((record.array() == prob_f.array()) || ((prob_f.get_r() < prob_f_second.get_r()) || (prob_f.get_c() < prob_f_second.get_c())))
 		{
-			prob_f_second.rotation90R();
-			searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
-			f prob_f_new(fake_figure, rows, colums);
-			if (prob_f_new.array() == prob_f.array()) {
-				prob_f_second.flipHorizontaly();
-				searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
-				f prob_f_new(fake_figure, rows, colums);
-				if (prob_f_new.array() == prob_f.array()) {
-					prob_f_second.flipVerticaly();
-					searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
-					f prob_f_new(fake_figure, rows, colums);
-					if (prob_f_new.array() == prob_f.array()) {
-						prob_f_second.flipHorizontaly();
-						searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
-						f prob_f_new(fake_figure, rows, colums);
-						if (prob_f_new.array() == prob_f.array()) {
-							prob_f_second.flipVerticaly();	//back to begining state
-						}
-						//(else) - nothing 'couse we came to start state
-					}
-					else find = true;
-				}
-				else find = true;
-			}
-			else find = true;
-			//else cout << "Can't compare figures!" << endl;
-		}
+			prob_f_second.rotation90R();	//turn and check again
 
-		if(find = true) return fake_figure;
-		else {
-			cout << "Can't compare figures!" << endl;
-			return fake_figure;
+
+			rows = prob_f.get_r();		//maybe it is not nessesary
+			colums = prob_f.get_c();	//
+
+			fake_figure = prob_f.array();
+
+			searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
+			f prob_f_new(prob_f.array(), rows, colums);
+			if (prob_f_new.array() != prob_f.array())
+			{
+				cout << "! " << prob_f_new.plenumHalf() << endl;
+				prob_f_new.print();
+				if (prob_f_new.plenumHalf() < record_plenum)
+				{
+					std::cout << "Y" << endl;
+					record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
+					record_plenum = prob_f_new.plenumHalf();
+				}
+				find = true;
+			}
+
+			fake_figure = prob_f.array();
+
+			prob_f_second.flipVerticaly();
+			searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
+			prob_f_new.reInitialise(fake_figure, rows, colums);
+			if (prob_f_new.array() != prob_f.array())
+			{
+				cout << "! " << prob_f_new.plenumHalf() << endl;
+				prob_f_new.print();
+				if (prob_f_new.plenumHalf() < record_plenum)
+				{
+					std::cout << "Y" << endl;
+					record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
+					record_plenum = prob_f_new.plenumHalf();
+				}
+				find = true;
+			}
+
+			fake_figure = prob_f.array();
+
+			prob_f_second.flipHorizontaly();
+			searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
+			prob_f_new.reInitialise(fake_figure, rows, colums);
+			prob_f_new.print();
+			if (prob_f_new.array() != prob_f.array())
+			{
+				cout << "! " << prob_f_new.plenumHalf() << endl;
+				prob_f_new.print();
+				if (prob_f_new.plenumHalf() < record_plenum)
+				{
+					std::cout << "Y" << endl;
+					record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
+					record_plenum = prob_f_new.plenumHalf();
+				}
+				find = true;
+			}
+
+			fake_figure = prob_f.array();
+
+			prob_f_second.flipVerticaly();
+			searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
+			prob_f_new.reInitialise(fake_figure, rows, colums);
+			if (prob_f_new.array() != prob_f.array())
+			{
+				cout << "! " << prob_f_new.plenumHalf() << endl;
+				prob_f_new.print();
+				if (prob_f_new.plenumHalf() < record_plenum)
+				{
+					std::cout << "Y" << endl;
+					record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
+					record_plenum = prob_f_new.plenumHalf();
+				}
+				find = true;
+			}
+
 		}
 	}
-	else
+
+
+	if ((record.array() == prob_f.array()) && (find == false))
+		{
+			std::cout << "TRUE!" << endl;
+			prob_f_second.findAngle();
+			prob_f.findAngle();
+			rows = prob_f.get_r();
+			colums = prob_f.get_c();
+
+			size_t **additional_arr = new size_t*[rows + r2 - 1];
+			for (int i = 0; i < rows + r2; i++) additional_arr[i] = new size_t[colums + c2 - 1];
+			for (int i(0); i < rows + r2 - 1; i++)
+				for (int j(0); j < colums + c2 - 1; j++) additional_arr[i][j] = 0;
+
+			for (int i(0); i < rows; i++)
+				for (int j(0); j < colums; j++)
+					additional_arr[i][j] = prob_f.array()[i][j];
+			
+			f prob_f_new(additional_arr, rows, colums);
+		
+			while ((colums != c1 + c2 - 1) && (rows != r1 + r2 - 1))
+			{
+				searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
+				prob_f_new.reInitialise(fake_figure, rows, colums);
+				if (prob_f_new.array() != prob_f.array())
+				{
+					if (prob_f_new.plenumHalf() < record_plenum)
+					{
+						record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
+						record_plenum = prob_f_new.plenumHalf();
+						find = true;
+					}
+				}
+
+				for (int i(0); i < rows; i++)
+					for (int j(0); j < colums; j++)
+						additional_arr[i][j] = prob_f.array()[i][j];
+
+				prob_f_second.flipVerticaly();
+				searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
+				prob_f_new.reInitialise(fake_figure, rows, colums);
+				if (prob_f_new.array() != prob_f.array())
+				{
+					if (prob_f_new.plenumHalf() < record_plenum)
+					{
+						record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
+						record_plenum = prob_f_new.plenumHalf();
+						find = true;
+					}
+				}
+
+				for (int i(0); i < rows; i++)
+					for (int j(0); j < colums; j++)
+						additional_arr[i][j] = prob_f.array()[i][j];
+
+				prob_f_second.flipHorizontaly();
+				searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
+				prob_f_new.reInitialise(fake_figure, rows, colums);
+				if (prob_f_new.array() != prob_f.array())
+				{
+					if (prob_f_new.plenumHalf() < record_plenum)
+					{
+						record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
+						record_plenum = prob_f_new.plenumHalf();
+						find = true;
+					}
+				}
+
+				for (int i(0); i < rows; i++)
+					for (int j(0); j < colums; j++)
+						additional_arr[i][j] = prob_f.array()[i][j];
+
+				prob_f_second.flipVerticaly();
+				searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
+				prob_f_new.reInitialise(fake_figure, rows, colums);
+				if (prob_f_new.array() != prob_f.array())
+				{
+					if (prob_f_new.plenumHalf() < record_plenum)
+					{
+						record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
+						record_plenum = prob_f_new.plenumHalf();
+						find = true;
+					}
+				}
+
+				for (int i(0); i < rows; i++)
+					for (int j(0); j < colums; j++)
+						additional_arr[i][j] = prob_f.array()[i][j];
+
+				////////////////////////////////////////////////////
+				prob_f_second.rotation90R();	//turn and check again
+
+				searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
+				f prob_f_new(fake_figure, rows, colums);
+				if (prob_f_new.array() != prob_f.array())
+				{
+					if (prob_f_new.plenumHalf() < record_plenum)
+					{
+						record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
+						record_plenum = prob_f_new.plenumHalf();
+						find = true;
+					}
+				}
+
+				for (int i(0); i < rows; i++)
+					for (int j(0); j < colums; j++)
+						additional_arr[i][j] = prob_f.array()[i][j];
+
+				prob_f_second.flipVerticaly();
+				searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
+				prob_f_new.reInitialise(fake_figure, rows, colums);
+				if (prob_f_new.array() != prob_f.array())
+				{
+					if (prob_f_new.plenumHalf() < record_plenum)
+					{
+						record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
+						record_plenum = prob_f_new.plenumHalf();
+						find = true;
+					}
+				}
+
+				for (int i(0); i < rows; i++)
+					for (int j(0); j < colums; j++)
+						additional_arr[i][j] = prob_f.array()[i][j];
+
+				prob_f_second.flipHorizontaly();
+				searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
+				prob_f_new.reInitialise(fake_figure, rows, colums);
+				if (prob_f_new.array() != prob_f.array())
+				{
+					if (prob_f_new.plenumHalf() < record_plenum)
+					{
+						record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
+						record_plenum = prob_f_new.plenumHalf();
+						find = true;
+					}
+				}
+
+				for (int i(0); i < rows; i++)
+					for (int j(0); j < colums; j++)
+						additional_arr[i][j] = prob_f.array()[i][j];
+
+				prob_f_second.flipVerticaly();
+				searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
+				prob_f_new.reInitialise(fake_figure, rows, colums);
+				if (prob_f_new.array() != prob_f.array())
+				{
+					if (prob_f_new.plenumHalf() < record_plenum)
+					{
+						record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
+						record_plenum = prob_f_new.plenumHalf();
+						find = true;
+					}
+				}
+				colums++; rows++;
+			}
+
+		}
+			
+
+		/*
 	{
 		size_t **additional_arr = new size_t*[r1 + r2 - 1];
 		for (int i = 0; i < r1 + r2; i++) additional_arr[i] = new size_t[c1 + c2 - 1];
@@ -175,7 +428,48 @@ size_t **polymino::mergeFigures(size_t **first_figure, int r1, int c1, size_t **
 			for (int j(0); j < c1; j++)
 				additional_arr[i][j] = first_figure[i][j];
 
+		f prob_f_new(first_figure, rows, colums);
+
 		while ((find == false) || ((colums != c1 + c2 - 1)&&(rows != r1 + r2 - 1)))
+		{
+
+			searchEmpty(additional_arr, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
+			f prob_f_new(additional_arr, rows, colums);
+			if (prob_f_new.array() == prob_f.array()) {
+				prob_f_second.flipHorizontaly();
+				searchEmpty(additional_arr, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
+				f prob_f_new(additional_arr, rows, colums);
+				if (prob_f_new.array() == prob_f.array()) {
+					prob_f_second.flipVerticaly();
+					searchEmpty(additional_arr, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
+					f prob_f_new(additional_arr, rows, colums);
+					if (prob_f_new.array() == prob_f.array()) {
+						prob_f_second.flipHorizontaly();
+						searchEmpty(additional_arr, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
+						f prob_f_new(additional_arr, rows, colums);
+						if (prob_f_new.array() == prob_f.array()) {
+							prob_f_second.flipVerticaly();	//back to begining state
+						}
+						//(else) - nothing 'couse we came to start state
+					}
+					else find = true;
+				}
+				else find = true;
+			}
+			else find = true;
+
+			colums++; rows++;
+
+			if (find = true) return additional_arr;
+			else {
+				cout << "Can't compare figures!" << endl;
+				return additional_arr;
+			}
+		}
+
+		prob_f_second.rotation90R();
+
+		while ((find == false) || ((colums != c1 + c2 - 1) && (rows != r1 + r2 - 1)))
 		{
 			searchEmpty(additional_arr, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
 			f prob_f_new(additional_arr, rows, colums);
@@ -203,275 +497,23 @@ size_t **polymino::mergeFigures(size_t **first_figure, int r1, int c1, size_t **
 			else find = true;
 
 			colums++; rows++;
+
 			if (find = true) return additional_arr;
 			else {
 				cout << "Can't compare figures!" << endl;
 				return additional_arr;
 			}
-		}
-	}
-
-	/*
-
+		}*/
 	
 
-
-
-	if ((prob_f.get_r() >= prob_f_second.get_r()) && (prob_f.get_c() >= prob_f_second.get_c()))
-	{
-		if (find = false)
-		{
-			//serch for 2nd massiv in fake_figure
-			
-		}
-		else return fake_figure;
-
-		
-	}
-
-	else if((prob_f.get_r() < prob_f_second.get_r()) && (prob_f.get_c() < prob_f_second.get_c()))
-	{
-		if (find = false)
-		{ 
-			prob_f_second.rotation90R();
-
-			int rows2 = prob_f_second.get_r();
-			int cols2 = prob_f_second.get_c();
-
-			second_figure = prob_f_second.array();
-			//serch again
-			for (int i(0); i < rows - rows2 + 1; i++)
-			{
-				for (int j(0); j < colums - cols2 + 1; j++)
-				{
-					int koefficient_of_similarity = 0;
-
-					for (int subarrayX = 0; subarrayX < rows2; subarrayX++)
-					{
-						for (int subarrayY = 0; subarrayY < cols2; subarrayY++)
-						{
-							if ((fake_figure[subarrayX + i][subarrayY + j] == 0) && (second_figure[subarrayX][subarrayY] == 1)) koefficient_of_similarity++;
-						}
-					}
-					if ((koefficient_of_similarity == units) && (point == true))
-					{
-						for (int subarrayX = 0; subarrayX < rows2; subarrayX++)
-						{
-							for (int subarrayY = 0; subarrayY < cols2; subarrayY++)
-							{
-								if (second_figure[subarrayX][subarrayY] == 1) fake_figure[subarrayX + i][subarrayY + j] = 1;
-							}
-						}
-						point = false;
-						find = true;
-					}
-				}
-			}	
-		}
-		else return fake_figure;
-
-		if (find = false)
-		{
-			prob_f_second.flipHorizontaly();
-
-			int rows2 = prob_f_second.get_r();
-			int cols2 = prob_f_second.get_c();
-
-			second_figure = prob_f_second.array();
-			//serch again
-			for (int i(0); i < rows - rows2 + 1; i++)
-			{
-				for (int j(0); j < colums - cols2 + 1; j++)
-				{
-					int koefficient_of_similarity = 0;
-
-					for (int subarrayX = 0; subarrayX < rows2; subarrayX++)
-					{
-						for (int subarrayY = 0; subarrayY < cols2; subarrayY++)
-						{
-							if ((fake_figure[subarrayX + i][subarrayY + j] == 0) && (second_figure[subarrayX][subarrayY] == 1)) koefficient_of_similarity++;
-						}
-					}
-					if ((koefficient_of_similarity == units) && (point == true))
-					{
-						for (int subarrayX = 0; subarrayX < rows2; subarrayX++)
-						{
-							for (int subarrayY = 0; subarrayY < cols2; subarrayY++)
-							{
-								if (second_figure[subarrayX][subarrayY] == 1) fake_figure[subarrayX + i][subarrayY + j] = 1;
-							}
-						}
-						point = false;
-						find = true;
-					}
-				}
-			}
-		}
-		else return fake_figure;
-
-		if (find = false)
-		{
-			prob_f_second.flipVerticaly();
-
-			int rows2 = prob_f_second.get_r();
-			int cols2 = prob_f_second.get_c();
-
-			second_figure = prob_f_second.array();
-			//serch again
-			for (int i(0); i < rows - rows2 + 1; i++)
-			{
-				for (int j(0); j < colums - cols2 + 1; j++)
-				{
-					int koefficient_of_similarity = 0;
-
-					for (int subarrayX = 0; subarrayX < rows2; subarrayX++)
-					{
-						for (int subarrayY = 0; subarrayY < cols2; subarrayY++)
-						{
-							if ((fake_figure[subarrayX + i][subarrayY + j] == 0) && (second_figure[subarrayX][subarrayY] == 1)) koefficient_of_similarity++;
-						}
-					}
-					if ((koefficient_of_similarity == units) && (point == true))
-					{
-						for (int subarrayX = 0; subarrayX < rows2; subarrayX++)
-						{
-							for (int subarrayY = 0; subarrayY < cols2; subarrayY++)
-							{
-								if (second_figure[subarrayX][subarrayY] == 1) fake_figure[subarrayX + i][subarrayY + j] = 1;
-							}
-						}
-						point = false;
-						find = true;
-					}
-				}
-			}
-		}
-		else return fake_figure;
-
-		if (find = false)
-		{
-			prob_f_second.flipHorizontaly();
-
-			int rows2 = prob_f_second.get_r();
-			int cols2 = prob_f_second.get_c();
-
-			second_figure = prob_f_second.array();
-			//serch again
-			for (int i(0); i < rows - rows2 + 1; i++)
-			{
-				for (int j(0); j < colums - cols2 + 1; j++)
-				{
-					int koefficient_of_similarity = 0;
-
-					for (int subarrayX = 0; subarrayX < rows2; subarrayX++)
-					{
-						for (int subarrayY = 0; subarrayY < cols2; subarrayY++)
-						{
-							if ((fake_figure[subarrayX + i][subarrayY + j] == 0) && (second_figure[subarrayX][subarrayY] == 1)) koefficient_of_similarity++;
-						}
-					}
-					if ((koefficient_of_similarity == units) && (point == true))
-					{
-						for (int subarrayX = 0; subarrayX < rows2; subarrayX++)
-						{
-							for (int subarrayY = 0; subarrayY < cols2; subarrayY++)
-							{
-								if (second_figure[subarrayX][subarrayY] == 1) fake_figure[subarrayX + i][subarrayY + j] = 1;
-							}
-						}
-						point = false;
-						find = true;
-					}
-				}
-			}
-		}
-		else return fake_figure;
-
-
-	}
-		
-	
-
-
-//////////////////////////////////////////
-
-	/*if (get_solve) return fake_figure;
+	if (find == true) return record.array();
 	else
 	{
-		point = true;
-		//serch for 2nd massiv in additional
-		for (int i(0); i < r1; i++)
-		{
-			for (int j(0); j < c1; j++)
-			{
-
-				int koefficient_of_similarity = 0;
-				for (int subarrayX = 0; subarrayX < r2; subarrayX++)
-				{
-					for (int subarrayY = 0; subarrayY < c2; subarrayY++)
-					{
-						if (additional_arr[i + subarrayX][j + subarrayY] == second_figure[subarrayX][subarrayY]) koefficient_of_similarity++;
-					}
-					if ((koefficient_of_similarity == r2*c2) && (point == true))
-					{
-						for (int subarrayX = 0; subarrayX < i + r2; subarrayX++)
-							for (int subarrayY = 0; subarrayY < j + c2; subarrayY++)
-							{
-								additional_arr[subarrayX][subarrayY] = 0;
-							}
-						point = false;
-					}
-				}
-
-			}
-		}
-
-		//invert
-		for (int i(0); i < r1 + r2; i++)
-		{
-			for (int j(0); j < c1 + c2; j++)
-			{
-				if (additional_arr[i][j] == 1) additional_arr[i][j] = 0;
-				else additional_arr[i][j] = 1;
-			}
-		}
-
-		colums = c1 + c2;		rows = r1 + r2;
-
-		//delete extra colums&rows
-		for (size_t i = 0; i < rows; i++)	//delete  empty rows
-		{
-			int zeros = 0;
-			for (size_t j = 0; j < colums; j++)
-				if (additional_arr[i][j] != 0) zeros = 1;
-			if (zeros == 0)
-			{
-				for (size_t y = i; y < rows - 1; y++)
-					for (size_t j = 0; j < colums; j++)
-						additional_arr[y][j] = additional_arr[y + 1][j];
-				rows--;
-				i = 0;
-			}
-		}
-		for (size_t i = 0; i < colums; i++)	//delete  empty colums
-		{
-			int zeros = 0;
-			for (size_t j = 0; j < rows; j++)
-				if (additional_arr[j][i] != 0) zeros = 1;
-			if (zeros == 0)
-			{
-				for (size_t y = i; y < colums - 1; y++)
-					for (size_t j = 0; j < rows; j++)
-						additional_arr[j][y] = additional_arr[j][y + 1];
-				colums--;
-				i = 0;
-			}
-		}
-
-		return additional_arr;
+		cout << "Can't compare figures!" << endl;
+		return record.array();
 	}
-	*/
 }
+
 
 void polymino::compare()
 {	    
@@ -490,20 +532,23 @@ void polymino::compare()
 			}
 		}
 	}
+
 	cout << endl;
 
 	bool get_solve = false;
-	
+
 	solvation = figures[0].array();
 	colums = figures[0].get_c(); 
 	rows = figures[0].get_r();
+	
 
 	for (int i = 0; i < n - 1; i++)
 	{
 		solvation = mergeFigures(solvation, rows, colums, figures[i + 1].array(), figures[i + 1].get_r(), figures[i + 1].get_c());
-		
-		/*if (result.plenum() == 0) get_solve = true;
-		else hint = "No ansver";*/
+		//figures[i].reInitialise(solvation, rows, colums);
+		//figures[i].print();
+		//if (result.plenum() == 0) get_solve = true;
+		//else hint = "No ansver";
 	}
 	f result(solvation, rows, colums);
 	result.print();

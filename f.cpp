@@ -2,7 +2,7 @@
 
 f::f()
 {
-	cout << "in|";		//initialization label
+	std::cout << "in|";		//initialization label
 	
 	**data;
 	c = 0, r = 0;
@@ -15,13 +15,20 @@ f::f(size_t **data, int r, int c)
 	this->c = c;
 	this->data = data;
 }
+void f::reInitialise(size_t **data, int r, int c)
+{
+	this->r = r;
+	this->c = c;
+	this->data = data;
+}
+
 
 int **f::read(string s)
 {
 	ifstream F(s);
 	if (!F.is_open())
 	{
-		cout << "Wrong path to the file!" << endl;
+		std::cout << "Wrong path to the file!" << endl;
 	}
 	else
 	{
@@ -73,7 +80,6 @@ int **f::read(string s)
 				size_t **x = new size_t*[N];
 				for (size_t i = 0; i < N; i++) x[i] = new size_t[N];
 
-				cout << endl;
 				for (size_t i = 0; i < N; i++)
 				{
 					for (size_t j = 0; j < N; j++)
@@ -116,6 +122,21 @@ int f::plenum()
 {
 	int fulness = (c*r) - square();
 	return fulness;
+}
+
+int f::plenumHalf()
+{
+	int free_area = 0;
+
+	for (int i(0); i < r; i++)
+	{
+		for (int j(0); j < c - i; j++)
+		{
+			if (data[i][j] == 0) free_area++;	
+		}	
+	}
+
+	return free_area;
 }
 
 bool f::checkCorrect()
@@ -164,9 +185,9 @@ bool f::checkCorrect()
 	{
 		for (size_t j(0); j < new_A; j++)
 		{
-			cout << A[i][j] << ' ';
+			std::cout << A[i][j] << ' ';
 		}
-		cout << endl;
+		std::cout << endl;
 	}
 	
 	/*size_t *used = new size_t[new_A];
@@ -211,46 +232,85 @@ bool f::checkCorrect()
 
 void f::findAngle()
 {
-	/*	size_t **record = new size_t*[r];
-	for (size_t i = 0; i < r; i++) record[i] = new size_t[c];*/
+	int record = 0;
 
-	bool continual = true;
+	bool continual = true, isRecord = false;
 	int definite = 0;
 
 	int row_length = 0, column_length = 0, new_row_length = 0, new_column_length = 0;
-	
-	for (int i = 0; i < 4; i++)
-	{ 
+	int r_length = 0, c_length = 0;
+
+
+	for (int i(0); i < 4; i++)	//rotate figure for finding "Ã" else rotate to the beginning
+	{
 		new_row_length = 0, new_column_length = 0;
-		
-		if ((data[0][0] == 1) && (data[0][0] == data[0][1]) && (data[0][0] == data[1][0]))
-		{ 
+		continual = true;
+
+		if ((data[0][0] == 1) && (data[0][1] == 1) && (data[1][0] == 1))
+		{
 			for (int Y = 0; Y < c; Y++)
 			{
-				if ((data[0][Y] == 1)&&(continual == true)) new_column_length++;
+				if ((data[0][Y] == 1) && (continual == true)) new_column_length++;
 				if (data[0][Y] == 0) continual = false;
 			}
-				
+
 			for (int X = 0; X < r; X++)
 			{
 				if ((data[X][0] == 1) && (continual == true)) new_row_length++;
 				if (data[X][0] == 0) continual = false;
 			}
 
-			if (new_row_length + new_column_length >= row_length + column_length)
+			if (new_row_length + new_column_length > r_length + c_length)
 			{
-				definite = i;
-				row_length = new_row_length;
-				column_length = new_column_length;
+				isRecord = true;
+				record = i;
+				r_length = new_row_length;
+				c_length = new_column_length;
+				//std::cout << "YYY" << endl;
 			}
 		}
+		else if ((data[0][0] == 1) && (data[0][1] == 1) && (data[1][0] == 0))
+		{
+			if (isRecord == false)
+			{
+				for (int Y = 0; Y < c; Y++)
+				{
+					if ((data[0][Y] == 1) && (continual == true)) new_column_length++;
+					if (data[0][Y] == 0) continual = false;
+				}
+				if (new_column_length > column_length)
+				{
+					record = i;
+					column_length = new_column_length;
+					//std::cout << "NYY" << endl;
+				}
+			}
+		}
+		else if ((data[0][0] == 1) && (data[0][1] == 0) && (data[1][0] == 1))
+		{
+			if (isRecord == false)
+			{
+				for (int X = 0; X < r; X++)
+				{
+					if ((data[X][0] == 1) && (continual == true)) new_row_length++;
+					if (data[X][0] == 0) continual = false;
+				}
 
+				if (new_row_length > row_length)
+				{
+					record = i;
+					row_length = new_row_length;
+					//std::cout << "NNY" << endl;
+				}
+			}
+		}	
 		rotation90R();
 	}
 
-	for (int i(0); i < definite; i++)
+	for (int i(0); i < record; i++)
+	{
 		rotation90R();
-
+	}
 	print();
 }
 
@@ -285,7 +345,6 @@ void f::delZeros()	//from square matrix to normal
 			i = 0;
 		}
 	}
-	cout << "dim: [" << r << " * " << c << "]" << endl;
 }
 
 void f::flipVerticaly()
@@ -328,15 +387,16 @@ void f::rotation90L()
 	hint += "L";
 }
 
+
 void f::print()
 {
 	for (size_t i(0); i < r; i++)
 	{
 		for (size_t j(0); j < c; j++)
-			cout << data[i][j] << ' ';
-		cout << endl;
+			std::cout << data[i][j] << ' ';
+		std::cout << endl;
 	}
-	cout << "_____________________" << endl;
+	std::cout << "_____________________" << endl;
 }
 
 int f::get_c()
