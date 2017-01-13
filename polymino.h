@@ -11,7 +11,7 @@ private:
 
 	f *figures;
 
-	size_t **solvation;
+	f result;
 
 	size_t colums, rows;
 
@@ -22,15 +22,17 @@ public:
 
 	polymino(f *figures, int n);
 
-	void searchEmpty(size_t **first_figure, int r1, int c1, size_t ** second_figure, int r2, int c2);
+	bool equivalent(size_t **first, size_t ** second, int r, int c);
 
-	size_t **mergeFigures(size_t **first_figure, int r1, int c1, size_t ** second_figure, int r2, int c2);
+	void backFigure(size_t **figure, size_t **figure_p, int r1, int c1, int r2, int c2);
+
+	size_t **searchEmpty(size_t **first_figure, int r1, int c1, size_t ** second_figure, int r2, int c2);
+
+	f mergeFigures(f first_figure, int r1, int c1, f second_figure, int r2, int c2);
 
 	void compare();
 
 	int poligon();
-
-	//void poligonVariability();
 
 	void resultFile();
 };

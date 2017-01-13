@@ -29,13 +29,40 @@ polymino::polymino(f *figures, int n)
 	return globalSquare;
 }*/
 
+bool polymino::equivalent(size_t **first, size_t ** second, int r, int c)
+{
+	int absolut = 0;
+	for (int i(0); i < r; i++)
+		for (int j(0); j < c; j++)
+			if (first[i][j] == second[i][j]) absolut++;
+	
+	if (absolut == r*c) return true;
+		else return false;
+}
+
+void polymino::backFigure(size_t **figure_p, size_t **figure_s, int r1, int c1, int r2, int c2)
+{
+	for (int i(0); i < r1; i++)
+		for (int j(0); j < c1; j++)
+			figure_p[i][j] = figure_s[i][j];
+
+	for (int i = r1; i < r2 - 1; i++)
+		for (int j = c1; j < c2 - 1; j++)
+			figure_p[i][j] = 0;
+}
 
 
-void polymino::searchEmpty(size_t **figure, int r1, int c1, size_t ** second_figure, int r2, int c2)
+
+size_t **polymino::searchEmpty(size_t **figure, int r1, int c1, size_t ** second_figure, int r2, int c2)
 {
 	int units = 0;
 	for (int i(0); i < r2; i++)
 		for (int j(0); j < c2; j++) if (second_figure[i][j] == 1) units++;
+
+	size_t **record = new size_t*[r1];
+	for (int i = 0; i < rows; i++) record[i] = new size_t[c1];
+	for (int i(0); i < r1; i++)
+		for (int j(0); j < c1; j++) record[i][j] = figure[i][j];
 
 	bool point = true;		//to check the first equivalention
 
@@ -58,460 +85,384 @@ void polymino::searchEmpty(size_t **figure, int r1, int c1, size_t ** second_fig
 				{
 					for (int subarrayY = 0; subarrayY < c2; subarrayY++)
 					{
-						if (second_figure[subarrayX][subarrayY] == 1) figure[subarrayX + i][subarrayY + j] = 1;
+						if (second_figure[subarrayX][subarrayY] == 1) record[subarrayX + i][subarrayY + j] = 1;
 					}
 				}
 				point = false;
 			}
 		}
 	}
+
+	return record;
 }
 
-size_t **polymino::mergeFigures(size_t **first_figure, int r1, int c1, size_t ** second_figure, int r2, int c2)
+f polymino::mergeFigures(f first_figure, int r1, int c1, f second_figure, int r2, int c2)
 {
+	int c_rec = c1 + c2 - 1, r_rec = r1 + r2 - 1;
+
 	int sq = 0;
 	for (int i(0); i < r1; i++)
 		for (int j(0); j < c1; j++)
-			if (first_figure[i][j] == 1) sq++;
+			if (first_figure.array()[i][j] == 1) sq++;
 	for (int i(0); i < r2; i++)
 		for (int j(0); j < c2; j++)
-			if (second_figure[i][j] == 1) sq++;
+			if (second_figure.array()[i][j] == 1) sq++;
 
-	f record(first_figure, r1, c1);	//to return
-	f prob_f(first_figure, r1, c1);
-	prob_f.findAngle();
+	f record(first_figure.array(), r1, c1);	//to return
+
+	first_figure.findAngle();
 
 	size_t **fake_figure = new size_t*[rows];
 	for (int i = 0; i < rows; i++) fake_figure[i] = new size_t[colums];
-	for (int i(0); i < r1; i++)
-		for (int j(0); j < c1; j++) fake_figure[i][j] = prob_f.array()[i][j];
+	/*for (int i(0); i < r1; i++)
+	for (int j(0); j < c1; j++) fake_figure[i][j] = first_figure.array()[i][j];*/
+	fake_figure = first_figure.array();
 
-	f prob_f_second(second_figure, r2, c2);
-	prob_f_second.findAngle();
+	second_figure.findAngle();
 
-	int record_plenum = c1 + r1 + r2 + c2;		//берем заведомо больше
-	rows = prob_f.get_r();
-	colums = prob_f.get_c();
+	int record_plenum = c1 + r1 + r2 + c2;		//берём заведомо больше
+	rows = first_figure.get_r();
+	colums = first_figure.get_c();
 
 
 	bool find = false;
 
-	if ((sq <= r1*c1) && (prob_f.plenum() >= prob_f_second.square())) //if empty area is adecuatly for second figure
+	/*  if empty area is adecuatly for second figure  */
+	if ((sq <= r1*c1) && (first_figure.plenum() >= second_figure.square()))
 	{
-		if ((prob_f.get_r() >= prob_f_second.get_r()) && (prob_f.get_c() >= prob_f_second.get_c()))
+		if ((first_figure.get_r() >= second_figure.get_r()) && (first_figure.get_c() >= second_figure.get_c()))
 		{
-			rows = prob_f.get_r();		//maybe it is not nessesary
-			colums = prob_f.get_c();	//
+			rows = first_figure.get_r();		//maybe it is not nessesary
+			colums = first_figure.get_c();	//
 
-			searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
-			f prob_f_new(fake_figure, rows, colums);
-			if (prob_f_new.array() != prob_f.array())
+			f prob_f_new(searchEmpty(fake_figure, rows, colums, second_figure.array(), second_figure.get_r(), second_figure.get_c()), rows, colums);
+
+			if (equivalent(prob_f_new.array(), first_figure.array(), first_figure.get_r(), first_figure.get_c()) == false)
 			{
-				cout << "! " << prob_f_new.plenumHalf() << endl;
-				prob_f_new.print();
 				if (prob_f_new.plenumHalf() < record_plenum)
 				{
+					std::cout << "hint: no rotation" << endl;
 					record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
 					record_plenum = prob_f_new.plenumHalf();
 				}
 				find = true;
 			}
+			cout << "..." << endl;
 
+			fake_figure = first_figure.array();/////////////////////
 
-			fake_figure = prob_f.array();
+			second_figure.flipVerticaly();
 
-			prob_f_second.flipVerticaly();
-			searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
-			prob_f_new.reInitialise(fake_figure, rows, colums);
-			if (prob_f_new.array() != prob_f.array())
+			prob_f_new.reInitialise(searchEmpty(fake_figure, rows, colums, second_figure.array(), second_figure.get_r(), second_figure.get_c()), rows, colums);
+
+			if (equivalent(prob_f_new.array(), first_figure.array(), first_figure.get_r(), first_figure.get_c()) == false)
 			{
-				cout << "! " << prob_f_new.plenumHalf() << endl;
-				prob_f_new.print();
-				if (prob_f_new.plenumHalf() < record_plenum)
+				if ((prob_f_new.plenumHalf() < record_plenum) || (prob_f_new.plenumHalf() == 0))
 				{
-					std::cout << "Y" << endl;
+					std::cout << "hint: V" << endl;
 					record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
 					record_plenum = prob_f_new.plenumHalf();
 				}
 				find = true;
 			}
+			cout << "..." << endl;
 
-			fake_figure = prob_f.array();
+			fake_figure = first_figure.array();//////////////////////
 
-			prob_f_second.flipHorizontaly();
-			searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
-			prob_f_new.reInitialise(fake_figure, rows, colums);
-			if (prob_f_new.array() != prob_f.array())
+
+			second_figure.flipHorizontaly();
+
+			prob_f_new.reInitialise(searchEmpty(fake_figure, rows, colums, second_figure.array(), second_figure.get_r(), second_figure.get_c()), rows, colums);
+
+			if (equivalent(prob_f_new.array(), first_figure.array(), first_figure.get_r(), first_figure.get_c()) == false)
 			{
-				cout << "! " << prob_f_new.plenumHalf() << endl;
-				prob_f_new.print();
-				if (prob_f_new.plenumHalf() < record_plenum)
+				if ((prob_f_new.plenumHalf() < record_plenum) || (prob_f_new.plenumHalf() == 0))
 				{
-					std::cout << "Y" << endl;
+					std::cout << "hint: V_H" << endl;
 					record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
 					record_plenum = prob_f_new.plenumHalf();
 				}
 				find = true;
 			}
+			cout << "..." << endl;
 
-			fake_figure = prob_f.array();
 
-			prob_f_second.flipVerticaly();
-			searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
-			prob_f_new.reInitialise(fake_figure, rows, colums);
-			if (prob_f_new.array() != prob_f.array())
+			fake_figure = first_figure.array();///////////////////////////
+
+			second_figure.flipVerticaly();
+
+			prob_f_new.reInitialise(searchEmpty(fake_figure, rows, colums, second_figure.array(), second_figure.get_r(), second_figure.get_c()), rows, colums);
+
+			if (equivalent(prob_f_new.array(), first_figure.array(), first_figure.get_r(), first_figure.get_c()) == false)
 			{
-				cout << "! " << prob_f_new.plenumHalf() << endl;
-				prob_f_new.print();
-				if (prob_f_new.plenumHalf() < record_plenum)
+				if ((prob_f_new.plenumHalf() < record_plenum) || (prob_f_new.plenumHalf() == 0))
 				{
-					std::cout << "Y" << endl;
+					std::cout << "hint: V_H_V" << endl;
 					record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
 					record_plenum = prob_f_new.plenumHalf();
 				}
 				find = true;
 			}
+			cout << "..." << endl;
 
 		}
 
-		if ((record.array() == prob_f.array()) || ((prob_f.get_r() < prob_f_second.get_r()) || (prob_f.get_c() < prob_f_second.get_c())))
+		if ((record.array() == first_figure.array()) || ((first_figure.get_r() < second_figure.get_r()) || (first_figure.get_c() < second_figure.get_c())))
 		{
-			prob_f_second.rotation90R();	//turn and check again
+			second_figure.rotation90R();	//turn and check again
 
+			rows = first_figure.get_r();		//maybe it is not nessesary
+			colums = first_figure.get_c();	//
 
-			rows = prob_f.get_r();		//maybe it is not nessesary
-			colums = prob_f.get_c();	//
+			fake_figure = first_figure.array();
 
-			fake_figure = prob_f.array();
+			f prob_f_new(searchEmpty(fake_figure, rows, colums, second_figure.array(), second_figure.get_r(), second_figure.get_c()), rows, colums);
 
-			searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
-			f prob_f_new(prob_f.array(), rows, colums);
-			if (prob_f_new.array() != prob_f.array())
+			if (equivalent(prob_f_new.array(), first_figure.array(), first_figure.get_r(), first_figure.get_c()) == false)
 			{
-				cout << "! " << prob_f_new.plenumHalf() << endl;
-				prob_f_new.print();
 				if (prob_f_new.plenumHalf() < record_plenum)
 				{
-					std::cout << "Y" << endl;
+					std::cout << "hint: R" << endl;
 					record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
 					record_plenum = prob_f_new.plenumHalf();
 				}
 				find = true;
 			}
+			cout << "..." << endl;
 
-			fake_figure = prob_f.array();
+			fake_figure = first_figure.array();
 
-			prob_f_second.flipVerticaly();
-			searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
-			prob_f_new.reInitialise(fake_figure, rows, colums);
-			if (prob_f_new.array() != prob_f.array())
+			second_figure.flipVerticaly();
+
+			prob_f_new.reInitialise(searchEmpty(fake_figure, rows, colums, second_figure.array(), second_figure.get_r(), second_figure.get_c()), rows, colums);
+
+			if (equivalent(prob_f_new.array(), first_figure.array(), first_figure.get_r(), first_figure.get_c()) == false)
 			{
-				cout << "! " << prob_f_new.plenumHalf() << endl;
-				prob_f_new.print();
 				if (prob_f_new.plenumHalf() < record_plenum)
 				{
-					std::cout << "Y" << endl;
+					std::cout << "hint: R_V" << endl;
 					record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
 					record_plenum = prob_f_new.plenumHalf();
 				}
 				find = true;
 			}
+			cout << "..." << endl;
 
-			fake_figure = prob_f.array();
+			fake_figure = first_figure.array();
 
-			prob_f_second.flipHorizontaly();
-			searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
-			prob_f_new.reInitialise(fake_figure, rows, colums);
-			prob_f_new.print();
-			if (prob_f_new.array() != prob_f.array())
+			second_figure.flipHorizontaly();
+
+			prob_f_new.reInitialise(searchEmpty(fake_figure, rows, colums, second_figure.array(), second_figure.get_r(), second_figure.get_c()), rows, colums);
+
+			if (equivalent(prob_f_new.array(), first_figure.array(), first_figure.get_r(), first_figure.get_c()) == false)
 			{
-				cout << "! " << prob_f_new.plenumHalf() << endl;
-				prob_f_new.print();
 				if (prob_f_new.plenumHalf() < record_plenum)
 				{
-					std::cout << "Y" << endl;
+					std::cout << "hint: R_V_H" << endl;
 					record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
 					record_plenum = prob_f_new.plenumHalf();
 				}
 				find = true;
 			}
+			cout << "..." << endl;
 
-			fake_figure = prob_f.array();
+			fake_figure = first_figure.array();
 
-			prob_f_second.flipVerticaly();
-			searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
-			prob_f_new.reInitialise(fake_figure, rows, colums);
-			if (prob_f_new.array() != prob_f.array())
+			second_figure.flipVerticaly();
+
+			prob_f_new.reInitialise(searchEmpty(fake_figure, rows, colums, second_figure.array(), second_figure.get_r(), second_figure.get_c()), rows, colums);
+
+			if (equivalent(prob_f_new.array(), first_figure.array(), first_figure.get_r(), first_figure.get_c()) == false)
 			{
-				cout << "! " << prob_f_new.plenumHalf() << endl;
-				prob_f_new.print();
-				if (prob_f_new.plenumHalf() < record_plenum)
+				if ((prob_f_new.plenumHalf() < record_plenum) || (prob_f_new.plenumHalf() == 0))
 				{
-					std::cout << "Y" << endl;
+					std::cout << "hint: R_V_H_V" << endl;
 					record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
 					record_plenum = prob_f_new.plenumHalf();
 				}
 				find = true;
 			}
+			cout << "..." << endl;
 
 		}
 	}
 
 
-	if ((record.array() == prob_f.array()) && (find == false))
+	/* try to extend the boundaries */
+	if ((record.array() == first_figure.array()) || (find == false))
+	{
+		int enter = 1;
+		std::cout << "\n Extend area!" << endl;
+
+		first_figure.findAngle();
+		rows = first_figure.get_r();
+		colums = first_figure.get_c();
+
+		second_figure.findAngle();
+
+		size_t **additional_arr = new size_t*[rows + r2 - 1];
+		for (int i = 0; i < rows + second_figure.get_r(); i++) additional_arr[i] = new size_t[colums + second_figure.get_c() - 1];
+		for (int i(0); i < rows + second_figure.get_r() - 1; i++)
+			for (int j(0); j < colums + second_figure.get_c() - 1; j++) additional_arr[i][j] = 0;
+
+		for (int i(0); i < rows; i++)
+			for (int j(0); j < colums; j++)
+				additional_arr[i][j] = first_figure.array()[i][j];
+
+		f prob_f_new(additional_arr, rows, colums);
+
+		while ((colums < c_rec + 1) && (rows < r_rec + 1))	//bottleneck
 		{
-			std::cout << "TRUE!" << endl;
-			prob_f_second.findAngle();
-			prob_f.findAngle();
-			rows = prob_f.get_r();
-			colums = prob_f.get_c();
-
-			size_t **additional_arr = new size_t*[rows + r2 - 1];
-			for (int i = 0; i < rows + r2; i++) additional_arr[i] = new size_t[colums + c2 - 1];
-			for (int i(0); i < rows + r2 - 1; i++)
-				for (int j(0); j < colums + c2 - 1; j++) additional_arr[i][j] = 0;
-
-			for (int i(0); i < rows; i++)
-				for (int j(0); j < colums; j++)
-					additional_arr[i][j] = prob_f.array()[i][j];
-			
-			f prob_f_new(additional_arr, rows, colums);
-		
-			while ((colums != c1 + c2 - 1) && (rows != r1 + r2 - 1))
+			cout << "ROWS: " << rows << "\tCOLUMS: " << colums << endl;
+			prob_f_new.reInitialise(searchEmpty(additional_arr, rows, colums, second_figure.array(), second_figure.get_r(), second_figure.get_c()), rows, colums);
+			if (equivalent(prob_f_new.array(), first_figure.array(), first_figure.get_r(), first_figure.get_c()) == false)
 			{
-				searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
-				prob_f_new.reInitialise(fake_figure, rows, colums);
-				if (prob_f_new.array() != prob_f.array())
+				if (prob_f_new.plenumHalf() < record_plenum)
 				{
-					if (prob_f_new.plenumHalf() < record_plenum)
-					{
-						record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
-						record_plenum = prob_f_new.plenumHalf();
-						find = true;
-					}
+					std::cout << "hint: no rotation" << endl;
+					record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
+					record_plenum = prob_f_new.plenumHalf();
+					find = true;
 				}
-
-				for (int i(0); i < rows; i++)
-					for (int j(0); j < colums; j++)
-						additional_arr[i][j] = prob_f.array()[i][j];
-
-				prob_f_second.flipVerticaly();
-				searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
-				prob_f_new.reInitialise(fake_figure, rows, colums);
-				if (prob_f_new.array() != prob_f.array())
-				{
-					if (prob_f_new.plenumHalf() < record_plenum)
-					{
-						record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
-						record_plenum = prob_f_new.plenumHalf();
-						find = true;
-					}
-				}
-
-				for (int i(0); i < rows; i++)
-					for (int j(0); j < colums; j++)
-						additional_arr[i][j] = prob_f.array()[i][j];
-
-				prob_f_second.flipHorizontaly();
-				searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
-				prob_f_new.reInitialise(fake_figure, rows, colums);
-				if (prob_f_new.array() != prob_f.array())
-				{
-					if (prob_f_new.plenumHalf() < record_plenum)
-					{
-						record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
-						record_plenum = prob_f_new.plenumHalf();
-						find = true;
-					}
-				}
-
-				for (int i(0); i < rows; i++)
-					for (int j(0); j < colums; j++)
-						additional_arr[i][j] = prob_f.array()[i][j];
-
-				prob_f_second.flipVerticaly();
-				searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
-				prob_f_new.reInitialise(fake_figure, rows, colums);
-				if (prob_f_new.array() != prob_f.array())
-				{
-					if (prob_f_new.plenumHalf() < record_plenum)
-					{
-						record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
-						record_plenum = prob_f_new.plenumHalf();
-						find = true;
-					}
-				}
-
-				for (int i(0); i < rows; i++)
-					for (int j(0); j < colums; j++)
-						additional_arr[i][j] = prob_f.array()[i][j];
-
-				////////////////////////////////////////////////////
-				prob_f_second.rotation90R();	//turn and check again
-
-				searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
-				f prob_f_new(fake_figure, rows, colums);
-				if (prob_f_new.array() != prob_f.array())
-				{
-					if (prob_f_new.plenumHalf() < record_plenum)
-					{
-						record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
-						record_plenum = prob_f_new.plenumHalf();
-						find = true;
-					}
-				}
-
-				for (int i(0); i < rows; i++)
-					for (int j(0); j < colums; j++)
-						additional_arr[i][j] = prob_f.array()[i][j];
-
-				prob_f_second.flipVerticaly();
-				searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
-				prob_f_new.reInitialise(fake_figure, rows, colums);
-				if (prob_f_new.array() != prob_f.array())
-				{
-					if (prob_f_new.plenumHalf() < record_plenum)
-					{
-						record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
-						record_plenum = prob_f_new.plenumHalf();
-						find = true;
-					}
-				}
-
-				for (int i(0); i < rows; i++)
-					for (int j(0); j < colums; j++)
-						additional_arr[i][j] = prob_f.array()[i][j];
-
-				prob_f_second.flipHorizontaly();
-				searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
-				prob_f_new.reInitialise(fake_figure, rows, colums);
-				if (prob_f_new.array() != prob_f.array())
-				{
-					if (prob_f_new.plenumHalf() < record_plenum)
-					{
-						record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
-						record_plenum = prob_f_new.plenumHalf();
-						find = true;
-					}
-				}
-
-				for (int i(0); i < rows; i++)
-					for (int j(0); j < colums; j++)
-						additional_arr[i][j] = prob_f.array()[i][j];
-
-				prob_f_second.flipVerticaly();
-				searchEmpty(fake_figure, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
-				prob_f_new.reInitialise(fake_figure, rows, colums);
-				if (prob_f_new.array() != prob_f.array())
-				{
-					if (prob_f_new.plenumHalf() < record_plenum)
-					{
-						record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
-						record_plenum = prob_f_new.plenumHalf();
-						find = true;
-					}
-				}
-				colums++; rows++;
 			}
+			cout << "..." << endl;
 
-		}
-			
+			backFigure(additional_arr, first_figure.array(), first_figure.get_r(), first_figure.get_c(), rows, colums);
 
-		/*
-	{
-		size_t **additional_arr = new size_t*[r1 + r2 - 1];
-		for (int i = 0; i < r1 + r2; i++) additional_arr[i] = new size_t[c1 + c2 - 1];
-		for (int i(0); i < r1 + r2 - 1; i++)
-			for (int j(0); j < c1 + c2 - 1; j++) additional_arr[i][j] = 0;
+			second_figure.flipVerticaly();
 
-		for (int i(0); i < r1; i++)
-			for (int j(0); j < c1; j++)
-				additional_arr[i][j] = first_figure[i][j];
+			prob_f_new.reInitialise(searchEmpty(additional_arr, rows, colums, second_figure.array(), second_figure.get_r(), second_figure.get_c()), rows, colums);
 
-		f prob_f_new(first_figure, rows, colums);
-
-		while ((find == false) || ((colums != c1 + c2 - 1)&&(rows != r1 + r2 - 1)))
-		{
-
-			searchEmpty(additional_arr, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
-			f prob_f_new(additional_arr, rows, colums);
-			if (prob_f_new.array() == prob_f.array()) {
-				prob_f_second.flipHorizontaly();
-				searchEmpty(additional_arr, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
-				f prob_f_new(additional_arr, rows, colums);
-				if (prob_f_new.array() == prob_f.array()) {
-					prob_f_second.flipVerticaly();
-					searchEmpty(additional_arr, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
-					f prob_f_new(additional_arr, rows, colums);
-					if (prob_f_new.array() == prob_f.array()) {
-						prob_f_second.flipHorizontaly();
-						searchEmpty(additional_arr, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
-						f prob_f_new(additional_arr, rows, colums);
-						if (prob_f_new.array() == prob_f.array()) {
-							prob_f_second.flipVerticaly();	//back to begining state
-						}
-						//(else) - nothing 'couse we came to start state
-					}
-					else find = true;
+			if (equivalent(prob_f_new.array(), first_figure.array(), first_figure.get_r(), first_figure.get_c()) == false)
+			{
+				if (prob_f_new.plenumHalf() < record_plenum)
+				{
+					std::cout << "hint: V" << endl;
+					record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
+					record_plenum = prob_f_new.plenumHalf();
+					find = true;
 				}
-				else find = true;
 			}
-			else find = true;
+			cout << "..." << endl;
 
-			colums++; rows++;
+			backFigure(additional_arr, first_figure.array(), first_figure.get_r(), first_figure.get_c(), rows, colums);
 
-			if (find = true) return additional_arr;
-			else {
-				cout << "Can't compare figures!" << endl;
-				return additional_arr;
+			second_figure.flipHorizontaly();
+
+			prob_f_new.reInitialise(searchEmpty(additional_arr, rows, colums, second_figure.array(), second_figure.get_r(), second_figure.get_c()), rows, colums);
+
+			if (equivalent(prob_f_new.array(), first_figure.array(), first_figure.get_r(), first_figure.get_c()) == false)
+			{
+				if (prob_f_new.plenumHalf() < record_plenum)
+				{
+					std::cout << "hint: V_H" << endl;
+					record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
+					record_plenum = prob_f_new.plenumHalf();
+					find = true;
+				}
 			}
+			cout << "..." << endl;
+
+			backFigure(additional_arr, first_figure.array(), first_figure.get_r(), first_figure.get_c(), rows, colums);
+
+			second_figure.flipVerticaly();
+
+			prob_f_new.reInitialise(searchEmpty(additional_arr, rows, colums, second_figure.array(), second_figure.get_r(), second_figure.get_c()), rows, colums);
+
+			if (equivalent(prob_f_new.array(), first_figure.array(), first_figure.get_r(), first_figure.get_c()) == false)
+			{
+				if (prob_f_new.plenumHalf() < record_plenum)
+				{
+					std::cout << "hint: V_H_V" << endl;
+					record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
+					record_plenum = prob_f_new.plenumHalf();
+					find = true;
+				}
+			}
+			cout << "..." << endl;
+
+			backFigure(additional_arr, first_figure.array(), first_figure.get_r(), first_figure.get_c(), rows, colums);
+
+			second_figure.rotation90R();	//turn and check again
+
+			prob_f_new.reInitialise(searchEmpty(additional_arr, rows, colums, second_figure.array(), second_figure.get_r(), second_figure.get_c()), rows, colums);
+
+			if (equivalent(prob_f_new.array(), first_figure.array(), first_figure.get_r(), first_figure.get_c()) == false)
+			{
+				if (prob_f_new.plenumHalf() < record_plenum)
+				{
+					std::cout << "hint: R" << endl;
+					record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
+					record_plenum = prob_f_new.plenumHalf();
+					find = true;
+				}
+			}
+			cout << "..." << endl;
+
+			backFigure(additional_arr, first_figure.array(), first_figure.get_r(), first_figure.get_c(), rows, colums);
+
+			second_figure.flipVerticaly();
+
+			prob_f_new.reInitialise(searchEmpty(additional_arr, rows, colums, second_figure.array(), second_figure.get_r(), second_figure.get_c()), rows, colums);
+
+			if (equivalent(prob_f_new.array(), first_figure.array(), first_figure.get_r(), first_figure.get_c()) == false)
+			{
+				if (prob_f_new.plenumHalf() < record_plenum)
+				{
+					std::cout << "hint: R_V" << endl;
+					record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
+					record_plenum = prob_f_new.plenumHalf();
+					find = true;
+				}
+			}
+			cout << "..." << endl;
+
+			backFigure(additional_arr, first_figure.array(), first_figure.get_r(), first_figure.get_c(), rows, colums);
+
+			second_figure.flipHorizontaly();
+
+			prob_f_new.reInitialise(searchEmpty(additional_arr, rows, colums, second_figure.array(), second_figure.get_r(), second_figure.get_c()), rows, colums);
+
+			if (equivalent(prob_f_new.array(), first_figure.array(), first_figure.get_r(), first_figure.get_c()) == false)
+			{
+				if (prob_f_new.plenumHalf() < record_plenum)
+				{
+					std::cout << "hint: R_V_H" << endl;
+					record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
+					record_plenum = prob_f_new.plenumHalf();
+					find = true;
+				}
+			}
+			cout << "..." << endl;
+
+			backFigure(additional_arr, first_figure.array(), first_figure.get_r(), first_figure.get_c(), rows, colums);
+
+			second_figure.flipVerticaly();
+
+			prob_f_new.reInitialise(searchEmpty(additional_arr, rows, colums, second_figure.array(), second_figure.get_r(), second_figure.get_c()), rows, colums);
+
+			if (equivalent(prob_f_new.array(), first_figure.array(), first_figure.get_r(), first_figure.get_c()) == false)
+			{
+				if (prob_f_new.plenumHalf() < record_plenum)
+				{
+					std::cout << "hint: R_V_H_V" << endl;
+					record.reInitialise(prob_f_new.array(), prob_f_new.get_r(), prob_f_new.get_c());
+					record_plenum = prob_f_new.plenumHalf();
+					find = true;
+				}
+			}
+			cout << "..." << endl;
+
+			cout << "end of " << enter << " extention: [ " << colums << " * " << rows << " ]" << endl;
+			if (colums != c_rec + 1) colums = colums + 1;
+			if (rows != r_rec + 1) rows = rows + 1;
+			enter++;
 		}
 
-		prob_f_second.rotation90R();
+	}	
 
-		while ((find == false) || ((colums != c1 + c2 - 1) && (rows != r1 + r2 - 1)))
-		{
-			searchEmpty(additional_arr, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
-			f prob_f_new(additional_arr, rows, colums);
-			if (prob_f_new.array() == prob_f.array()) {
-				prob_f_second.flipHorizontaly();
-				searchEmpty(additional_arr, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
-				f prob_f_new(additional_arr, rows, colums);
-				if (prob_f_new.array() == prob_f.array()) {
-					prob_f_second.flipVerticaly();
-					searchEmpty(additional_arr, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
-					f prob_f_new(additional_arr, rows, colums);
-					if (prob_f_new.array() == prob_f.array()) {
-						prob_f_second.flipHorizontaly();
-						searchEmpty(additional_arr, rows, colums, prob_f_second.array(), prob_f_second.get_r(), prob_f_second.get_c());
-						f prob_f_new(additional_arr, rows, colums);
-						if (prob_f_new.array() == prob_f.array()) {
-							prob_f_second.flipVerticaly();	//back to begining state
-						}
-						//(else) - nothing 'couse we came to start state
-					}
-					else find = true;
-				}
-				else find = true;
-			}
-			else find = true;
-
-			colums++; rows++;
-
-			if (find = true) return additional_arr;
-			else {
-				cout << "Can't compare figures!" << endl;
-				return additional_arr;
-			}
-		}*/
-	
-
-	if (find == true) return record.array();
-	else
-	{
-		cout << "Can't compare figures!" << endl;
-		return record.array();
-	}
+	if (find == true) return record;
+	else return first_figure;
 }
 
 
@@ -537,25 +488,22 @@ void polymino::compare()
 
 	bool get_solve = false;
 
-	solvation = figures[0].array();
-	colums = figures[0].get_c(); 
-	rows = figures[0].get_r();
-	
+	result = figures[0];
 
 	for (int i = 0; i < n - 1; i++)
 	{
-		solvation = mergeFigures(solvation, rows, colums, figures[i + 1].array(), figures[i + 1].get_r(), figures[i + 1].get_c());
-		//figures[i].reInitialise(solvation, rows, colums);
-		//figures[i].print();
-		//if (result.plenum() == 0) get_solve = true;
-		//else hint = "No ansver";
+		cout << "compare " << i + 1 << " & " << i + 2 << endl;
+		result = mergeFigures(result, result.get_r(), result.get_c(), figures[i + 1], figures[i + 1].get_r(), figures[i + 1].get_c());
 	}
-	f result(solvation, rows, colums);
-	result.print();
+	result.delZeros();
 }
 
 void polymino::resultFile()
 {
+	size_t **solution = new size_t*[result.get_r()];
+	for (int i = 0; i < rows; i++) solution[i] = new size_t[result.get_c()];
+	solution = result.array();
+
 	ofstream f_res("Figures&Result\\result.txt");
 	if (!f_res.is_open())
 	{
@@ -563,11 +511,11 @@ void polymino::resultFile()
 	}
 	else
 	{
-		for (size_t i = 0; i < rows; i++)
+		for (size_t i = 0; i < result.get_r(); i++)
 		{
-			for (size_t j = 0; j < colums; j++)
+			for (size_t j = 0; j < result.get_c(); j++)
 			{
-				f_res << solvation[i][j] << ' ';
+				f_res << solution[i][j] << ' ';
 			}
 			f_res << endl;
 		}

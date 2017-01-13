@@ -128,13 +128,28 @@ int f::plenumHalf()
 {
 	int free_area = 0;
 
-	for (int i(0); i < r; i++)
+	if (c >= r)
 	{
-		for (int j(0); j < c - i; j++)
+		for (int i(0); i < r; i++)
 		{
-			if (data[i][j] == 0) free_area++;	
-		}	
+			for (int j(0); j < c - i; j++)
+			{
+				if (data[i][j] == 0) free_area++;
+			}
+		}
 	}
+	else
+	{
+		for (int i(0); i < c; i++)
+		{
+			for (int j = i; j < r; j++)
+			{
+				if (data[j][i] == 0) free_area++;
+			}
+		}
+
+	}
+	
 
 	return free_area;
 }
@@ -311,7 +326,7 @@ void f::findAngle()
 	{
 		rotation90R();
 	}
-	print();
+
 }
 
 void f::delZeros()	//from square matrix to normal
